@@ -1,0 +1,520 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #80C783;
+    --green-light: #C8E9C9;
+    --green-lighter: #EBF6EB;
+    --green-dark: #4E9E52;
+    --green-darker: #2E6B32;
+    --cream: #F6FBF6;
+    --white: #FFFFFF;
+    --text: #1C3A1E;
+    --text-mid: #4A7A4D;
+    --text-light: #80A882;
+    --code-bg: #1E3320;
+    --accent-warm: #F7C87A;
+    --shadow: rgba(80,160,83,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); font-size: 15px; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #80C783 0%, #5AAD5E 45%, #3D8A41 100%);
+    padding: 32px 24px 24px;
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+  }
+  .hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.10); }
+  .hero::after { content: ''; position: absolute; bottom: -30px; left: 10px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.07); }
+
+  .hero-content { position: relative; z-index: 2; }
+  .hero-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 8px; }
+  .hero-title { font-family: 'Playfair Display', serif; font-size: 32px; color: white; line-height: 1.15; margin-bottom: 6px; }
+  .hero-sub { font-size: 14px; color: rgba(255,255,255,0.82); font-weight: 300; }
+  .hero-dots { display: flex; gap: 6px; margin-top: 18px; }
+  .hero-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.35); cursor: pointer; transition: background 0.2s; }
+  .hero-dot.active { background: white; }
+
+  /* ANIMALS */
+  .animals {
+    position: absolute;
+    right: 16px;
+    bottom: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+  }
+
+  .animal-svg { width: 72px; height: 72px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
+
+  /* NAV */
+  .nav-wrap { background: var(--white); border-bottom: 2px solid var(--green-light); padding: 0 16px; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; z-index: 10; }
+  .nav-wrap::-webkit-scrollbar { display: none; }
+  .nav-btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 13px 14px; border: none; background: none; cursor: pointer; color: var(--text-light); border-bottom: 2.5px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { color: var(--green-dark); }
+  .nav-btn.active { color: var(--green-dark); border-bottom-color: var(--green); }
+
+  /* CONTENT */
+  .content { padding: 20px 20px 50px; }
+  .tab-panel { display: none; animation: fadeIn 0.2s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sec-title { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--green-darker); margin: 20px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .sec-title::after { content: ''; flex: 1; height: 1px; background: var(--green-light); }
+  .desc { font-size: 14px; color: var(--text-mid); line-height: 1.7; margin-bottom: 12px; }
+
+  /* CODE BLOCK */
+  .cb { background: var(--code-bg); border-radius: 12px; padding: 16px 18px; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.95; margin: 8px 0; overflow-x: auto; color: #C8E9C9; white-space: pre; position: relative; }
+  .cb-label { position: absolute; top: 10px; right: 14px; font-size: 9px; letter-spacing: 0.1em; color: rgba(255,255,255,0.2); text-transform: uppercase; }
+  .kw { color: #80C783; } .str { color: #F7C87A; } .cmt { color: rgba(255,255,255,0.32); font-style: italic; } .fn { color: #A8E6FF; } .num { color: #F7BCAB; }
+
+  /* EXPLAIN ROW */
+  .explain-row { display: grid; grid-template-columns: 1fr; gap: 0; margin: 8px 0; }
+  .explain-item { display: flex; gap: 10px; padding: 7px 10px; border-radius: 8px; background: var(--green-lighter); margin-bottom: 4px; align-items: flex-start; }
+  .explain-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .explain-code { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green-darker); background: white; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--green-light); white-space: nowrap; flex-shrink: 0; }
+  .explain-text { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+
+  /* WORD CARD */
+  .word-grid { display: flex; flex-direction: column; gap: 8px; }
+  .word-card { background: var(--white); border: 1.5px solid var(--green-light); border-radius: 12px; padding: 13px 15px; transition: border-color 0.2s, box-shadow 0.2s; }
+  .word-card:hover { border-color: var(--green); box-shadow: 0 2px 12px var(--shadow); }
+  .word-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .word-tag { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--green-lighter); color: var(--green-dark); font-weight: 500; }
+  .word-name { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--green-darker); }
+  .word-desc { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+  .word-ex { font-family: 'DM Mono', monospace; font-size: 11px; background: var(--green-lighter); border: 1px solid var(--green-light); padding: 6px 10px; border-radius: 8px; margin-top: 6px; color: var(--green-darker); display: block; line-height: 1.6; white-space: pre-wrap; }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; margin: 10px 0; border-radius: 12px; border: 1.5px solid var(--green-light); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--green-light); color: var(--green-darker); font-weight: 600; padding: 10px 12px; text-align: left; font-size: 12px; letter-spacing: 0.03em; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--green-lighter); color: var(--text); vertical-align: top; line-height: 1.6; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: rgba(128,199,131,0.05); }
+  td code { font-family: 'DM Mono', monospace; font-size: 12px; background: var(--green-lighter); color: var(--green-darker); padding: 1px 6px; border-radius: 5px; }
+
+  /* TIP / WARN */
+  .tip { background: var(--green-lighter); border-left: 3px solid var(--green); border-radius: 0 10px 10px 0; padding: 10px 13px; font-size: 13px; color: var(--green-darker); margin: 10px 0; line-height: 1.6; }
+  .warn { background: #FFF8EC; border-left: 3px solid var(--accent-warm); border-radius: 0 10px 10px 0; padding: 10px 13px; font-size: 13px; color: #7A5010; margin: 10px 0; line-height: 1.6; }
+
+  /* STATUS GRID */
+  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 0; }
+  .status-card { border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+  .s2xx { background: #E8F6E8; } .s4xx { background: #FFF0E8; } .s409 { background: #FFF8E0; } .s5xx { background: #F5E8F5; }
+  .s-code { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 600; min-width: 36px; }
+  .s2xx .s-code { color: #2E6B32; } .s4xx .s-code { color: #B84020; } .s409 .s-code { color: #8A6010; } .s5xx .s-code { color: #6A1B9A; }
+  .s-name { font-size: 13px; font-weight: 600; color: var(--text); } .s-when { font-size: 12px; color: var(--text-mid); margin-top: 1px; }
+
+  /* PATTERN */
+  .pattern-card { background: var(--white); border: 1.5px solid var(--green-light); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .pattern-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--green-darker); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+  .pattern-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--green-light); color: var(--green-darker); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .pattern-desc { font-size: 13px; color: var(--text-mid); margin-bottom: 10px; line-height: 1.6; }
+  .pattern-tag { font-size: 11px; background: var(--green-lighter); color: var(--green-dark); padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-label">QA Automation · Postman Script</div>
+    <div class="hero-title">Handbook<br>สำหรับงานจริง</div>
+    <div class="hero-sub">syntax · ศัพท์ · pattern · โลกจริง</div>
+    <div class="hero-dots">
+      <div class="hero-dot active"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+    </div>
+  </div>
+
+  <!-- CAT SVG -->
+  <div class="animals">
+    <svg class="animal-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <!-- body -->
+      <ellipse cx="40" cy="55" rx="18" ry="16" fill="white" opacity="0.92"/>
+      <!-- head -->
+      <circle cx="40" cy="34" r="16" fill="white" opacity="0.92"/>
+      <!-- ears -->
+      <polygon points="27,22 22,10 33,18" fill="white" opacity="0.92"/>
+      <polygon points="53,22 58,10 47,18" fill="white" opacity="0.92"/>
+      <!-- inner ears -->
+      <polygon points="28,21 24,13 32,18" fill="#F7BCAB"/>
+      <polygon points="52,21 56,13 48,18" fill="#F7BCAB"/>
+      <!-- eyes -->
+      <ellipse cx="34" cy="32" rx="3" ry="3.5" fill="#2E6B32"/>
+      <ellipse cx="46" cy="32" rx="3" ry="3.5" fill="#2E6B32"/>
+      <circle cx="34" cy="32" r="1.5" fill="#1a1a1a"/>
+      <circle cx="46" cy="32" r="1.5" fill="#1a1a1a"/>
+      <circle cx="35" cy="31" r="0.7" fill="white"/>
+      <circle cx="47" cy="31" r="0.7" fill="white"/>
+      <!-- nose -->
+      <ellipse cx="40" cy="37" rx="2" ry="1.2" fill="#F7BCAB"/>
+      <!-- mouth -->
+      <path d="M37 39 Q40 42 43 39" stroke="#ccc" stroke-width="1" fill="none"/>
+      <!-- whiskers -->
+      <line x1="20" y1="36" x2="33" y2="37" stroke="#aaa" stroke-width="0.8"/>
+      <line x1="20" y1="38.5" x2="33" y2="38.5" stroke="#aaa" stroke-width="0.8"/>
+      <line x1="47" y1="37" x2="60" y2="36" stroke="#aaa" stroke-width="0.8"/>
+      <line x1="47" y1="38.5" x2="60" y2="38.5" stroke="#aaa" stroke-width="0.8"/>
+      <!-- tail -->
+      <path d="M56 60 Q70 50 65 40" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.9"/>
+      <!-- legs -->
+      <ellipse cx="30" cy="68" rx="5" ry="4" fill="white" opacity="0.9"/>
+      <ellipse cx="50" cy="68" rx="5" ry="4" fill="white" opacity="0.9"/>
+      <!-- stripe -->
+      <line x1="37" y1="20" x2="37" y2="26" stroke="#ddd" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="40" y1="18" x2="40" y2="24" stroke="#ddd" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="43" y1="20" x2="43" y2="26" stroke="#ddd" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+
+    <!-- DOG SVG -->
+    <svg class="animal-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <!-- body -->
+      <ellipse cx="40" cy="56" rx="19" ry="15" fill="#F7C87A" opacity="0.92"/>
+      <!-- head -->
+      <circle cx="40" cy="34" r="17" fill="#F7C87A" opacity="0.92"/>
+      <!-- ears (floppy) -->
+      <ellipse cx="23" cy="30" rx="7" ry="12" fill="#E8A84A" opacity="0.95" transform="rotate(-15 23 30)"/>
+      <ellipse cx="57" cy="30" rx="7" ry="12" fill="#E8A84A" opacity="0.95" transform="rotate(15 57 30)"/>
+      <!-- snout -->
+      <ellipse cx="40" cy="40" rx="9" ry="7" fill="#FDDBA0" opacity="0.9"/>
+      <!-- nose -->
+      <ellipse cx="40" cy="36" rx="4" ry="2.5" fill="#3a2a1a"/>
+      <!-- nostrils -->
+      <circle cx="37.5" cy="36.5" r="1" fill="#5a3a2a"/>
+      <circle cx="42.5" cy="36.5" r="1" fill="#5a3a2a"/>
+      <!-- eyes -->
+      <circle cx="33" cy="31" r="4" fill="#3a2a1a"/>
+      <circle cx="47" cy="31" r="4" fill="#3a2a1a"/>
+      <circle cx="34" cy="30" r="1.5" fill="white"/>
+      <circle cx="48" cy="30" r="1.5" fill="white"/>
+      <!-- mouth -->
+      <path d="M35 42 Q40 47 45 42" stroke="#c08050" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- tongue -->
+      <ellipse cx="40" cy="46" rx="4" ry="3" fill="#F7BCAB"/>
+      <!-- tail -->
+      <path d="M58 55 Q72 45 68 35" stroke="#F7C87A" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9"/>
+      <!-- legs -->
+      <ellipse cx="29" cy="68" rx="6" ry="4.5" fill="#F7C87A" opacity="0.9"/>
+      <ellipse cx="51" cy="68" rx="6" ry="4.5" fill="#F7C87A" opacity="0.9"/>
+      <!-- collar -->
+      <path d="M26 46 Q40 52 54 46" stroke="#80C783" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="50" r="2.5" fill="#4E9E52"/>
+    </svg>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <button class="nav-btn active" onclick="show('vocab')">📖 ศัพท์</button>
+  <button class="nav-btn" onclick="show('read')">อ่าน Response</button>
+  <button class="nav-btn" onclick="show('expect')">เช็คค่า</button>
+  <button class="nav-btn" onclick="show('status')">Status Code</button>
+  <button class="nav-btn" onclick="show('neg')">Negative</button>
+  <button class="nav-btn" onclick="show('var')">Variable</button>
+  <button class="nav-btn" onclick="show('pattern')">🌟 Pattern จริง</button>
+</div>
+
+<div class="content">
+
+<!-- VOCAB -->
+<div id="panel-vocab" class="tab-panel active">
+  <div class="desc">ศัพท์ที่ต้องเข้าใจก่อนเขียน script ทุกคำอธิบายแบบเข้าใจง่าย</div>
+  <div class="word-grid">
+    <div class="word-card"><div class="word-header"><span class="word-tag">data type</span><span class="word-name">Object</span></div><div class="word-desc">ข้อมูลที่มีหลาย field ห่อด้วย { } — เหมือนกล่องที่มีของข้างใน</div><span class="word-ex">{ "id": 1, "name": "Ann", "isActive": "Y" }</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">data type</span><span class="word-name">Array</span></div><div class="word-desc">รายการข้อมูลหลายอัน ห่อด้วย [ ] เริ่มนับจาก index 0 เสมอ</div><span class="word-ex">[ {"id":1}, {"id":2} ]   ← [0]=อันแรก  [1]=อันสอง</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">concept</span><span class="word-name">Property / Field / Key</span></div><div class="word-desc">ชื่อของข้อมูลใน object ใช้แทนกันได้ทั้ง 3 คำ ความหมายเดียวกัน</div><span class="word-ex">{ "id": 1 }  ← "id" คือ property  ·  1 คือ value</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">concept</span><span class="word-name">Nested Object</span></div><div class="word-desc">object อยู่ข้างใน object อีกทีนึง เข้าถึงด้วยจุด (.) ต่อกัน</div><span class="word-ex">{ "address": { "city": "Bangkok" } }
+→ body.address.city  ได้ "Bangkok"</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">testing</span><span class="word-name">Assertion</span></div><div class="word-desc">การยืนยันว่าค่าต้องเป็นแบบนี้ ถ้าไม่ตรง test จะ fail อัตโนมัติ</div><span class="word-ex">pm.expect(body.id).to.equal(1)
+← assert ว่า id ต้องเป็น 1</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">testing</span><span class="word-name">Happy Path</span></div><div class="word-desc">ส่งข้อมูลถูกต้องครบ → คาดว่า API ทำงานสำเร็จ ได้ 200/201</div><span class="word-ex">POST user ด้วย email + password ถูก → ได้ 200 + token</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">testing</span><span class="word-name">Negative Test</span></div><div class="word-desc">ส่งข้อมูลผิด/ไม่ครบ → เช็คว่า API จัดการ error ได้ถูกต้อง</div><span class="word-ex">POST โดยไม่ส่ง required field → คาดว่าได้ 400</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">spec</span><span class="word-name">M / O  (Mandatory / Optional)</span></div><div class="word-desc">M = ต้องมีเสมอ ถ้าไม่มี = bug · O = มีหรือไม่มีก็ได้ ต้องเช็คใน if</div><span class="word-ex">M → pm.expect(body).to.have.property('id')
+O → if (body.minStock !== undefined) { เช็คต่อ }</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">spec</span><span class="word-name">SV / MV  (Single / Multiple Value)</span></div><div class="word-desc">SV = ค่าเดียว · MV = หลายค่า เป็น array ต้องเช็คให้ต่างกัน</div><span class="word-ex">MV → pm.expect(body.specs).to.be.an('array')</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">concept</span><span class="word-name">Chain Request</span></div><div class="word-desc">เอาค่าจาก response หนึ่ง ไปใช้ใน request ถัดไปอัตโนมัติ ไม่ต้อง copy ด้วยมือ</div><span class="word-ex">POST → ได้ id → เก็บใน variable → GET /items/{{id}}</span></div>
+    <div class="word-card"><div class="word-header"><span class="word-tag">concept</span><span class="word-name">Schema Validation</span></div><div class="word-desc">เช็คว่า response มีครบทุก field และ type ถูกต้องตาม spec</div><span class="word-ex">spec บอก id เป็น String
+→ เช็คว่า body.id เป็น 'string' ไม่ใช่ number</span></div>
+  </div>
+</div>
+
+<!-- READ -->
+<div id="panel-read" class="tab-panel">
+  <div class="desc">ทุกครั้งที่เขียน script ต้องเริ่มจาก 2 บรรทัดนี้ก่อนเสมอ</div>
+  <div class="cb"><span class="cb-label">START HERE</span><span class="kw">const</span> body = pm.response.<span class="fn">json</span>()  <span class="cmt">// แปลง response ก่อน</span>
+console.<span class="fn">log</span>(body)                  <span class="cmt">// ดูก่อนเขียน assert เสมอ</span></div>
+  <div class="sec-title">เข้าถึง Object</div>
+  <div class="cb"><span class="cmt">// response: { "id": 1, "name": "Ann", "isActive": "Y" }</span>
+body.id          <span class="cmt">// ได้ 1</span>
+body.name        <span class="cmt">// ได้ "Ann"</span>
+body.isActive    <span class="cmt">// ได้ "Y"</span></div>
+  <div class="sec-title">เข้าถึง Nested Object</div>
+  <div class="cb"><span class="cmt">// response: { "assetGroupObj": { "cfgName": "Main" } }</span>
+body.assetGroupObj           <span class="cmt">// ได้ { "cfgName": "Main" }</span>
+body.assetGroupObj.cfgName   <span class="cmt">// ได้ "Main"</span></div>
+  <div class="sec-title">เข้าถึง Array</div>
+  <div class="cb"><span class="cmt">// response: [ {"id":1,"name":"A"}, {"id":2,"name":"B"} ]</span>
+body[<span class="num">0</span>]               <span class="cmt">// อันแรก index=0</span>
+body[<span class="num">0</span>].id            <span class="cmt">// ได้ 1</span>
+body[<span class="num">1</span>].name          <span class="cmt">// ได้ "B"</span>
+body.length          <span class="cmt">// จำนวนทั้งหมด</span>
+body[body.length-<span class="num">1</span>]  <span class="cmt">// อันสุดท้าย</span></div>
+  <div class="sec-title">Array ซ้อนใน Object</div>
+  <div class="cb"><span class="cmt">// { "resultData": [ { "specs": [ {"specName":"CPU"} ] } ] }</span>
+body.resultData[<span class="num">0</span>].specs[<span class="num">0</span>].specName  <span class="cmt">// ได้ "CPU"</span></div>
+  <div class="tip">💡 console.log(body) ก่อนเสมอ → เห็นค่า → แล้วค่อยเขียน assert</div>
+</div>
+
+<!-- EXPECT -->
+<div id="panel-expect" class="tab-panel">
+  <div class="sec-title">โครงสร้างหลัก</div>
+  <div class="cb">pm.<span class="fn">test</span>(<span class="str">"ชื่อ test"</span>, <span class="kw">function</span> () {
+    pm.<span class="fn">expect</span>(ค่าที่มี).to.<span class="fn">___</span>(ค่าที่คาดหวัง)
+})</div>
+  <div class="sec-title">เช็คค่าตรงๆ</div>
+  <div class="cb">pm.expect(body.resultCode).to.<span class="fn">equal</span>(<span class="str">"20000"</span>)
+pm.expect(body.resultCode).to.not.<span class="fn">equal</span>(<span class="str">"99999"</span>)
+pm.expect(body).to.deep.<span class="fn">equal</span>({})</div>
+  <div class="sec-title">เช็คชนิดข้อมูล (type)</div>
+  <div class="cb">pm.expect(body.id).to.be.a(<span class="str">'string'</span>)
+pm.expect(body.count).to.be.a(<span class="str">'number'</span>)
+pm.expect(body.specs).to.be.an(<span class="str">'array'</span>)
+pm.expect(body.data).to.be.an(<span class="str">'object'</span>)
+pm.expect(body.flag).to.be.<span class="kw">true</span>
+pm.expect(body.deleted).to.be.<span class="kw">null</span></div>
+  <div class="sec-title">เช็คว่ามี field อยู่</div>
+  <div class="cb">pm.expect(body).to.have.<span class="fn">property</span>(<span class="str">'id'</span>)
+pm.expect(body).to.have.all.<span class="fn">keys</span>([<span class="str">'id'</span>, <span class="str">'name'</span>, <span class="str">'isActive'</span>])</div>
+  <div class="sec-title">เช็คตัวเลข / string / array</div>
+  <div class="cb">pm.expect(body.price).to.be.<span class="fn">above</span>(<span class="num">0</span>)
+pm.expect(body.age).to.be.<span class="fn">below</span>(<span class="num">100</span>)
+pm.expect(body.email).to.<span class="fn">include</span>(<span class="str">'@'</span>)
+pm.expect(body.isActive).to.be.<span class="fn">oneOf</span>([<span class="str">'Y'</span>, <span class="str">'N'</span>])
+pm.expect(pm.response.responseTime).to.be.<span class="fn">below</span>(<span class="num">2000</span>)</div>
+  <div class="tip">💡 เพิ่ม .not. หน้าอะไรก็ได้ เช่น .to.not.be.null = ต้องไม่เป็น null</div>
+</div>
+
+<!-- STATUS -->
+<div id="panel-status" class="tab-panel">
+  <div class="desc">status code ที่เจอในงานจริงบ่อยที่สุด จำให้ได้ทุกอันครับ</div>
+  <div class="status-grid">
+    <div class="status-card s2xx"><div class="s-code">200</div><div><div class="s-name">OK</div><div class="s-when">สำเร็จปกติ</div></div></div>
+    <div class="status-card s2xx"><div class="s-code">201</div><div><div class="s-name">Created</div><div class="s-when">POST สร้างสำเร็จ</div></div></div>
+    <div class="status-card s4xx"><div class="s-code">400</div><div><div class="s-name">Bad Request</div><div class="s-when">ส่ง body ผิด/ไม่ครบ</div></div></div>
+    <div class="status-card s4xx"><div class="s-code">401</div><div><div class="s-name">Unauthorized</div><div class="s-when">ไม่มี/token ผิด</div></div></div>
+    <div class="status-card s4xx"><div class="s-code">403</div><div><div class="s-name">Forbidden</div><div class="s-when">ไม่มีสิทธิ์</div></div></div>
+    <div class="status-card s4xx"><div class="s-code">404</div><div><div class="s-name">Not Found</div><div class="s-when">ไม่มีข้อมูล</div></div></div>
+    <div class="status-card s409"><div class="s-code">409</div><div><div class="s-name">Conflict</div><div class="s-when">ข้อมูลซ้ำ</div></div></div>
+    <div class="status-card s409"><div class="s-code">422</div><div><div class="s-name">Unprocessable</div><div class="s-when">ส่ง type ผิด</div></div></div>
+    <div class="status-card s5xx"><div class="s-code">500</div><div><div class="s-name">Server Error</div><div class="s-when">bug ฝั่ง server</div></div></div>
+  </div>
+  <div class="sec-title">เช็ค status ใน script</div>
+  <div class="cb">pm.response.to.have.<span class="fn">status</span>(<span class="num">200</span>)
+pm.expect(pm.response.code).to.<span class="fn">equal</span>(<span class="num">200</span>)
+pm.expect(pm.response.code).to.be.<span class="fn">oneOf</span>([<span class="num">200</span>, <span class="num">201</span>])
+pm.expect(pm.response.code).to.be.<span class="fn">within</span>(<span class="num">400</span>, <span class="num">499</span>)</div>
+</div>
+
+<!-- NEGATIVE -->
+<div id="panel-neg" class="tab-panel">
+  <div class="desc">Negative test สำคัญมาก bug ส่วนใหญ่ซ่อนอยู่ในกรณีผิดปกติ ไม่ใช่ happy path</div>
+  <div class="tbl-wrap"><table>
+    <tr><th>กรณี</th><th>วิธีทำ</th><th>คาดว่าได้</th></tr>
+    <tr><td>ไม่มี resource</td><td>GET id ที่ไม่มีอยู่</td><td><code>404</code></td></tr>
+    <tr><td>ข้อมูลซ้ำ</td><td>POST ซ้ำ 2 ครั้ง</td><td><code>409</code></td></tr>
+    <tr><td>ไม่ส่ง required field</td><td>POST ขาด field M</td><td><code>400</code></td></tr>
+    <tr><td>type ผิด</td><td>ส่ง string แทน number</td><td><code>422</code></td></tr>
+    <tr><td>ไม่มี token</td><td>ลบ Authorization header</td><td><code>401</code></td></tr>
+    <tr><td>token ไม่มีสิทธิ์</td><td>ใช้ token user ยิง admin API</td><td><code>403</code></td></tr>
+  </table></div>
+  <div class="sec-title">เช็ค error response</div>
+  <div class="cb"><span class="kw">const</span> body = pm.response.<span class="fn">json</span>()
+pm.<span class="fn">test</span>(<span class="str">"status ต้องเป็น 404"</span>, <span class="kw">function</span> () {
+    pm.response.to.have.<span class="fn">status</span>(<span class="num">404</span>)
+})
+pm.<span class="fn">test</span>(<span class="str">"resultCode ต้องไม่ใช่ 20000"</span>, <span class="kw">function</span> () {
+    pm.expect(body.resultCode).to.not.<span class="fn">equal</span>(<span class="str">"20000"</span>)
+})</div>
+  <div class="warn">⚠️ Optional field (O) ต้องเช็คใน if ก่อนเสมอ ไม่งั้นจะ fail ตอน field ไม่มี</div>
+  <div class="cb"><span class="cmt">// ❌ ผิด</span>
+pm.expect(body.minStock).to.be.a(<span class="str">'number'</span>)
+
+<span class="cmt">// ✅ ถูก</span>
+<span class="kw">if</span> (body.minStock !== <span class="kw">undefined</span>) {
+    pm.expect(body.minStock).to.be.a(<span class="str">'number'</span>)
+}</div>
+</div>
+
+<!-- VARIABLE -->
+<div id="panel-var" class="tab-panel">
+  <div class="tbl-wrap"><table>
+    <tr><th>ประเภท</th><th>ใช้เมื่อ</th><th>อยู่ได้นานแค่ไหน</th></tr>
+    <tr><td><code>const / let</code></td><td>เก็บชั่วคราวใน script เดียว</td><td>แค่ script นั้น</td></tr>
+    <tr><td><code>collectionVariables</code></td><td>chain request ข้าม request</td><td>ตลอด collection</td></tr>
+    <tr><td><code>environment</code></td><td>baseUrl, token</td><td>ตลอด environment</td></tr>
+    <tr><td><code>globals</code></td><td>ใช้ทุก collection</td><td>ตลอด workspace</td></tr>
+  </table></div>
+  <div class="sec-title">collectionVariables</div>
+  <div class="cb">pm.collectionVariables.<span class="fn">set</span>(<span class="str">"postId"</span>, body.id)
+pm.collectionVariables.<span class="fn">get</span>(<span class="str">"postId"</span>)
+pm.collectionVariables.<span class="fn">unset</span>(<span class="str">"postId"</span>)
+<span class="cmt">// ใน URL bar</span>
+https://api.example.com/asset/{{postId}}</div>
+  <div class="sec-title">environment</div>
+  <div class="cb">pm.environment.<span class="fn">set</span>(<span class="str">"baseUrl"</span>, <span class="str">"https://api.example.com"</span>)
+pm.environment.<span class="fn">set</span>(<span class="str">"token"</span>, body.accessToken)
+pm.environment.<span class="fn">get</span>(<span class="str">"token"</span>)
+<span class="cmt">// ใน URL</span>
+{{baseUrl}}/api/v1/asset/type</div>
+  <div class="sec-title">Pre-request Script</div>
+  <div class="cb"><span class="kw">const</span> token = pm.environment.<span class="fn">get</span>(<span class="str">"token"</span>)
+pm.request.headers.<span class="fn">add</span>({ key: <span class="str">"Authorization"</span>, value: <span class="str">`Bearer ${token}`</span> })
+
+<span class="kw">const</span> r = Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * <span class="num">99999</span>)
+pm.collectionVariables.<span class="fn">set</span>(<span class="str">"email"</span>, <span class="str">`test${r}@mail.com`</span>)</div>
+  <div class="tip">💡 chain request → collectionVariables · baseUrl/token → environment</div>
+</div>
+
+<!-- PATTERN -->
+<div id="panel-pattern" class="tab-panel">
+  <div class="desc">4 pattern นี้ครอบคลุม 90% ของงานจริง จำ pattern ได้ก็ประยุกต์ได้ทันที</div>
+
+  <!-- PATTERN 1 -->
+  <div class="pattern-card">
+    <div class="pattern-title"><div class="pattern-icon">1</div>เช็ค M/O + SV/MV ตาม spec</div>
+    <div class="pattern-desc">ใช้ทุกครั้งที่มี spec งาน เช็ค Mandatory ก่อน แล้วค่อยเช็ค Optional ใน if</div>
+    <div class="cb"><span class="kw">const</span> body = pm.response.<span class="fn">json</span>()
+<span class="kw">const</span> first = body.resultData[<span class="num">0</span>]  <span class="cmt">// ดึง object อันแรกออกมาใช้</span>
+
+pm.<span class="fn">test</span>(<span class="str">"M fields ต้องครบ"</span>, <span class="kw">function</span> () {
+    pm.expect(first).to.have.<span class="fn">property</span>(<span class="str">'assetTypeId'</span>)   <span class="cmt">// M</span>
+    pm.expect(first).to.have.<span class="fn">property</span>(<span class="str">'isActive'</span>)       <span class="cmt">// M</span>
+})
+
+<span class="kw">if</span> (first.minStock !== <span class="kw">undefined</span>) {  <span class="cmt">// O: เช็คก่อนว่ามีค่าไหม</span>
+    pm.<span class="fn">test</span>(<span class="str">"minStock เป็น number"</span>, <span class="kw">function</span> () {
+        pm.expect(first.minStock).to.be.a(<span class="str">'number'</span>)
+    })
+}
+
+pm.<span class="fn">test</span>(<span class="str">"specs เป็น array (MV)"</span>, <span class="kw">function</span> () {
+    pm.expect(first.specs).to.be.an(<span class="str">'array'</span>)  <span class="cmt">// MV ต้องเป็น array</span>
+    <span class="kw">if</span> (first.specs.length > <span class="num">0</span>) {              <span class="cmt">// ถ้ามีข้อมูลค่อยเช็คต่อ</span>
+        pm.expect(first.specs[<span class="num">0</span>]).to.have.<span class="fn">property</span>(<span class="str">'specName'</span>)
+    }
+})</div>
+    <div class="explain-row">
+      <div class="explain-item"><span class="explain-icon">📦</span><span class="explain-code">body.resultData[0]</span><span class="explain-text">ดึง object อันแรกออกมาเก็บไว้ใน first ไม่ต้องพิมพ์ซ้ำทุกบรรทัด</span></div>
+      <div class="explain-item"><span class="explain-icon">✅</span><span class="explain-code">have.property('x')</span><span class="explain-text">เช็คว่ามี field ชื่อ x อยู่ใน object — ใช้กับ M field ที่ต้องมีเสมอ</span></div>
+      <div class="explain-item"><span class="explain-icon">❓</span><span class="explain-code">if (x !== undefined)</span><span class="explain-text">เช็คก่อนว่า field มีค่าไหม ถ้าไม่มีจะข้ามไป ไม่ fail — ใช้กับ O field</span></div>
+      <div class="explain-item"><span class="explain-icon">📋</span><span class="explain-code">be.an('array')</span><span class="explain-text">เช็คว่าเป็น array — ใช้กับ MV field ที่มีหลายค่า</span></div>
+      <div class="explain-item"><span class="explain-icon">🔢</span><span class="explain-code">specs.length > 0</span><span class="explain-text">เช็คว่า array ไม่ว่างก่อน แล้วค่อยเข้าถึง [0] ไม่งั้นจะ error</span></div>
+    </div>
+  </div>
+
+  <!-- PATTERN 2 -->
+  <div class="pattern-card">
+    <div class="pattern-title"><div class="pattern-icon">2</div>POST แล้วบันทึก id สำหรับ chain</div>
+    <div class="pattern-desc">หลัง POST สำเร็จ บันทึก id ไว้ใช้ใน GET หรือ DELETE อัตโนมัติ ไม่ต้อง copy มือ</div>
+    <div class="cb"><span class="kw">const</span> body = pm.response.<span class="fn">json</span>()
+
+pm.<span class="fn">test</span>(<span class="str">"สร้างสำเร็จ"</span>, <span class="kw">function</span> () {
+    pm.response.to.have.<span class="fn">status</span>(<span class="num">200</span>)                            <span class="cmt">// HTTP status ถูก</span>
+    pm.expect(body.resultCode).to.<span class="fn">equal</span>(<span class="str">"20000"</span>)               <span class="cmt">// business code ถูก</span>
+    pm.expect(body.resultData).to.have.<span class="fn">property</span>(<span class="str">'assetTypeId'</span>) <span class="cmt">// มี id กลับมา</span>
+})
+
+<span class="cmt">// บันทึก id ไว้ใช้ใน request ถัดไป (วางนอก pm.test)</span>
+pm.collectionVariables.<span class="fn">set</span>(<span class="str">"assetTypeId"</span>, body.resultData.assetTypeId)
+console.<span class="fn">log</span>(<span class="str">"saved id:"</span>, body.resultData.assetTypeId)</div>
+    <div class="explain-row">
+      <div class="explain-item"><span class="explain-icon">🔍</span><span class="explain-code">have.status(200)</span><span class="explain-text">เช็ค HTTP status — ต้องผ่านก่อนถึงจะเช็ค business logic ต่อได้</span></div>
+      <div class="explain-item"><span class="explain-icon">💼</span><span class="explain-code">resultCode "20000"</span><span class="explain-text">เช็ค business status code ของระบบ ต่างจาก HTTP status — ต้องเช็คทั้งคู่</span></div>
+      <div class="explain-item"><span class="explain-icon">💾</span><span class="explain-code">collectionVariables.set</span><span class="explain-text">บันทึก id ไว้ใน memory — request ถัดไปใช้ {{assetTypeId}} ใน URL ได้เลย</span></div>
+      <div class="explain-item"><span class="explain-icon">📍</span><span class="explain-code">วางนอก pm.test</span><span class="explain-text">การบันทึกค่าไม่ใช่ assertion จึงวางข้างนอก pm.test ไม่ต้องห่อไว้ข้างใน</span></div>
+    </div>
+  </div>
+
+  <!-- PATTERN 3 -->
+  <div class="pattern-card">
+    <div class="pattern-title"><div class="pattern-icon">3</div>Negative test ครบ 3 case</div>
+    <div class="pattern-desc">ทำเป็น request แยกกัน แต่ละ request เช็ค 1 error case ไม่รวมกัน</div>
+    <div class="cb"><span class="cmt">// Request A — ไม่ส่ง required field</span>
+pm.<span class="fn">test</span>(<span class="str">"ขาด required field → 400"</span>, <span class="kw">function</span> () {
+    pm.response.to.have.<span class="fn">status</span>(<span class="num">400</span>)                    <span class="cmt">// ต้องได้ 400 ไม่ใช่ 200</span>
+    pm.expect(body.resultCode).to.not.<span class="fn">equal</span>(<span class="str">"20000"</span>) <span class="cmt">// resultCode ต้องไม่ success</span>
+})
+
+<span class="cmt">// Request B — ส่งข้อมูลซ้ำ 2 ครั้ง</span>
+pm.<span class="fn">test</span>(<span class="str">"duplicate → 409"</span>, <span class="kw">function</span> () {
+    pm.response.to.have.<span class="fn">status</span>(<span class="num">409</span>)  <span class="cmt">// conflict เพราะซ้ำ</span>
+})
+
+<span class="cmt">// Request C — ลบ Authorization header ออก</span>
+pm.<span class="fn">test</span>(<span class="str">"no token → 401"</span>, <span class="kw">function</span> () {
+    pm.response.to.have.<span class="fn">status</span>(<span class="num">401</span>)  <span class="cmt">// unauthorized</span>
+})</div>
+    <div class="explain-row">
+      <div class="explain-item"><span class="explain-icon">🚫</span><span class="explain-code">to.not.equal("20000")</span><span class="explain-text">เช็คว่าไม่ success — เพราะ error case ต้องไม่ได้ resultCode 20000 กลับมา</span></div>
+      <div class="explain-item"><span class="explain-icon">📨</span><span class="explain-code">request แยกกัน</span><span class="explain-text">แต่ละ error case ทำเป็น request แยก เพราะ body ที่ส่งต่างกัน ไม่ควนรวมกัน</span></div>
+      <div class="explain-item"><span class="explain-icon">🗝️</span><span class="explain-code">ลบ header</span><span class="explain-text">ทดสอบ 401 ด้วยการลบ Authorization header ออกจาก request นั้นๆ</span></div>
+    </div>
+  </div>
+
+  <!-- PATTERN 4 -->
+  <div class="pattern-card">
+    <div class="pattern-title"><div class="pattern-icon">4</div>วน loop เช็คทุก item ใน array</div>
+    <div class="pattern-desc">ใช้เมื่อ resultData มีหลายอัน อยากเช็คให้ครบทุก item ไม่ใช่แค่ [0]</div>
+    <div class="cb">body.resultData.<span class="fn">forEach</span>(<span class="kw">function</span> (item, index) {
+    <span class="cmt">// item = object แต่ละอัน, index = ลำดับที่ (0,1,2...)</span>
+
+    pm.<span class="fn">test</span>(<span class="str">`item[${index}] มี assetTypeId`</span>, <span class="kw">function</span> () {
+        pm.expect(item).to.have.<span class="fn">property</span>(<span class="str">'assetTypeId'</span>)
+        <span class="cmt">// เช็คทุก item ว่ามี field นี้ ไม่ใช่แค่อันแรก</span>
+    })
+
+    pm.<span class="fn">test</span>(<span class="str">`item[${index}] isActive เป็น Y หรือ N`</span>, <span class="kw">function</span> () {
+        pm.expect(item.isActive).to.be.<span class="fn">oneOf</span>([<span class="str">'Y'</span>, <span class="str">'N'</span>])
+        <span class="cmt">// ค่าต้องเป็นแค่ Y หรือ N เท่านั้น ค่าอื่นถือว่า fail</span>
+    })
+})</div>
+    <div class="explain-row">
+      <div class="explain-item"><span class="explain-icon">🔄</span><span class="explain-code">forEach(item, index)</span><span class="explain-text">วนทุก item ใน array อัตโนมัติ — item คือข้อมูล index คือลำดับที่</span></div>
+      <div class="explain-item"><span class="explain-icon">🏷️</span><span class="explain-code">`item[${index}]`</span><span class="explain-text">ชื่อ test จะแสดงเป็น item[0], item[1]... ทำให้รู้ทันทีว่า item ไหน fail</span></div>
+      <div class="explain-item"><span class="explain-icon">🎯</span><span class="explain-code">be.oneOf([...])</span><span class="explain-text">เช็คว่าค่าต้องเป็นหนึ่งในนี้เท่านั้น — เหมาะกับ field ที่มีค่าจำกัด เช่น Y/N</span></div>
+      <div class="explain-item"><span class="explain-icon">⚡</span><span class="explain-code">ทำไมไม่ใช้แค่ [0]</span><span class="explain-text">ถ้าเช็คแค่ [0] อาจพลาด bug ที่อยู่ใน item ลำดับอื่น loop จะจับได้ทุกอัน</span></div>
+    </div>
+  </div>
+
+  <div class="tip">💡 4 pattern นี้ครอบคลุม 90% ของงานจริง จำ pattern ได้ก็ประยุกต์ได้เลย ไม่ต้องจำ syntax ทุกตัว</div>
+</div>
+
+</div>
+
+<script>
+function show(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById('panel-' + name).classList.add('active')
+  event.target.classList.add('active')
+  const dots = document.querySelectorAll('.hero-dot')
+  const panels = ['vocab','read','expect','status','neg','var','pattern']
+  dots.forEach((d,i) => d.classList.toggle('active', panels[i] === name))
+}
+</script>
+</body>
+</html>
