@@ -1,0 +1,678 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #80C783; --green-light: #C8E9C9; --green-lighter: #EBF6EB;
+    --green-dark: #4E9E52; --green-darker: #2E6B32;
+    --cream: #F6FBF6; --white: #fff; --text: #1C3A1E;
+    --text-mid: #4A7A4D; --text-light: #80A882;
+    --code-bg: #1E3320; --accent: #F7C87A; --pink: #F7BCAB;
+    --red: #E57373; --red-light: #FFEBEE;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); font-size: 14px; }
+
+  .header { background: linear-gradient(135deg, #80C783 0%, #4E9E52 60%, #2E6B32 100%); padding: 20px 20px 16px; position: relative; overflow: hidden; }
+  .header::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.08); }
+  .header-top { display:flex; align-items:center; justify-content:space-between; }
+  .header-title { font-family:'Playfair Display',serif; font-size:22px; color:white; }
+  .header-sub { font-size:12px; color:rgba(255,255,255,0.75); margin-top:3px; }
+  .progress-wrap { margin-top:14px; }
+  .progress-label { display:flex; justify-content:space-between; font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:5px; }
+  .progress-bar { height:6px; background:rgba(255,255,255,0.2); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; background:white; border-radius:3px; transition:width 0.4s; }
+  .a-svg { width:44px; height:44px; }
+  .animals-h { display:flex; gap:4px; }
+
+  .phase-nav { background:white; border-bottom:2px solid var(--green-light); padding:0 16px; display:flex; gap:0; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:10; }
+  .phase-nav::-webkit-scrollbar { display:none; }
+  .phase-btn { font-size:12px; font-weight:500; padding:10px 12px; border:none; background:none; cursor:pointer; color:var(--text-light); border-bottom:2.5px solid transparent; white-space:nowrap; transition:all 0.2s; }
+  .phase-btn:hover { color:var(--green-dark); }
+  .phase-btn.active { color:var(--green-dark); border-bottom-color:var(--green); }
+
+  .content { padding:16px; }
+  .phase-panel { display:none; }
+  .phase-panel.active { display:block; animation:fadeIn 0.2s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  .api-info-bar { background:var(--green-darker); color:white; border-radius:12px; padding:12px 16px; margin-bottom:14px; font-size:13px; line-height:1.7; }
+  .api-info-bar code { background:rgba(255,255,255,0.15); padding:1px 7px; border-radius:5px; font-family:'DM Mono',monospace; font-size:12px; }
+
+  .ex-card { background:white; border:1.5px solid var(--green-light); border-radius:14px; margin-bottom:12px; overflow:hidden; transition:border-color 0.2s; }
+  .ex-card.completed { border-color:var(--green); }
+  .ex-header { padding:14px 16px 12px; cursor:pointer; display:flex; align-items:center; gap:10px; }
+  .ex-num { width:28px; height:28px; border-radius:8px; background:var(--green-light); color:var(--green-darker); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.3s; }
+  .ex-num.done { background:var(--green); color:white; }
+  .ex-title { font-family:'Playfair Display',serif; font-size:14px; color:var(--green-darker); flex:1; }
+  .ex-meta { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+  .ex-badge { font-size:10px; padding:2px 8px; border-radius:20px; font-weight:600; }
+  .badge-new { background:#EBF6EB; color:var(--green-dark); }
+  .badge-lock { background:#f0f0f0; color:#aaa; }
+  .badge-done { background:var(--green-light); color:var(--green-darker); }
+  .ex-score { font-size:10px; color:var(--green-dark); font-family:'DM Mono',monospace; }
+  .chevron { font-size:12px; color:var(--text-light); transition:transform 0.2s; }
+  .ex-body { display:none; padding:0 16px 16px; border-top:1px solid var(--green-lighter); }
+  .ex-body.open { display:block; }
+
+  .ex-desc { font-size:13px; color:var(--text-mid); line-height:1.7; margin:12px 0 10px; }
+  .ex-section { font-size:11px; font-weight:700; color:var(--green-darker); margin:12px 0 6px; letter-spacing:0.05em; text-transform:uppercase; }
+  .info-box { background:var(--green-lighter); border-radius:10px; padding:10px 13px; font-size:13px; color:var(--text-mid); line-height:1.7; margin:8px 0; }
+  .info-box code { font-family:'DM Mono',monospace; font-size:12px; background:white; padding:1px 6px; border-radius:5px; color:var(--green-darker); }
+  .info-box b { color:var(--green-darker); }
+  .response-box { background:var(--code-bg); border-radius:10px; padding:10px 13px; font-family:'DM Mono',monospace; font-size:11.5px; color:#C8E9C9; line-height:1.8; margin:8px 0; overflow-x:auto; white-space:pre; }
+  .task-list { display:flex; flex-direction:column; gap:6px; margin:8px 0; }
+  .task-item { display:flex; gap:8px; align-items:flex-start; padding:8px 10px; background:var(--green-lighter); border-radius:8px; font-size:13px; color:var(--text); line-height:1.5; }
+  .task-num { width:20px; height:20px; border-radius:50%; background:var(--green-light); color:var(--green-darker); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .task-item code { font-family:'DM Mono',monospace; font-size:11px; background:white; padding:1px 5px; border-radius:4px; color:var(--green-darker); }
+
+  /* SAVED ANSWER */
+  .saved-answer { background:var(--code-bg); border-radius:10px; padding:12px 14px; font-family:'DM Mono',monospace; font-size:11px; color:#C8E9C9; line-height:1.8; margin:8px 0; max-height:150px; overflow-y:auto; white-space:pre-wrap; display:none; }
+  .saved-answer.show { display:block; }
+  .saved-label { font-size:11px; color:var(--green-dark); font-weight:600; margin:10px 0 4px; display:flex; align-items:center; justify-content:space-between; }
+  .toggle-saved { font-size:11px; color:var(--text-light); cursor:pointer; text-decoration:underline; }
+
+  textarea { width:100%; min-height:160px; background:var(--code-bg); color:#C8E9C9; font-family:'DM Mono',monospace; font-size:12px; line-height:1.8; border:none; border-radius:10px; padding:14px 16px; resize:vertical; outline:none; margin-top:10px; }
+  textarea::placeholder { color:rgba(200,233,201,0.25); }
+  textarea:focus { box-shadow:0 0 0 2px var(--green); }
+
+  .btn-row { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .btn-check { background:var(--green); color:white; border:none; border-radius:10px; padding:10px 20px; font-size:13px; font-weight:500; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background 0.2s; }
+  .btn-check:hover { background:var(--green-dark); }
+  .btn-hint { background:none; color:var(--green-dark); border:1.5px solid var(--green-light); border-radius:10px; padding:10px 16px; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+  .btn-hint:hover { background:var(--green-lighter); }
+  .btn-reset { background:none; color:var(--text-light); border:1.5px solid #e0e0e0; border-radius:10px; padding:10px 16px; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+
+  .feedback { margin-top:12px; border-radius:12px; padding:14px 16px; display:none; }
+  .feedback.show { display:block; }
+  .feedback.pass { background:#E8F5E8; border:1.5px solid var(--green-light); }
+  .feedback.fail { background:var(--red-light); border:1.5px solid #FFCDD2; }
+  .feedback.hint-fb { background:#FFF8EC; border:1.5px solid #FFE082; }
+  .fb-title { font-size:14px; font-weight:600; margin-bottom:8px; }
+  .pass .fb-title { color:var(--green-darker); }
+  .fail .fb-title { color:#C62828; }
+  .hint-fb .fb-title { color:#8A6010; }
+  .fb-item { font-size:13px; line-height:1.6; display:flex; gap:6px; align-items:flex-start; margin-bottom:4px; }
+  .fb-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:6px; }
+  .score-bar { display:flex; align-items:center; gap:8px; margin:8px 0; }
+  .score-track { flex:1; height:6px; background:var(--green-light); border-radius:3px; overflow:hidden; }
+  .score-fill { height:100%; background:var(--green); border-radius:3px; transition:width 0.5s; }
+  .score-text { font-size:12px; font-weight:600; color:var(--green-darker); min-width:40px; text-align:right; }
+  .tip-box { background:var(--green-lighter); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:9px 12px; font-size:12px; color:var(--green-darker); margin:10px 0; line-height:1.6; }
+  .lock-msg { background:#f8f8f8; border-radius:12px; padding:20px; text-align:center; color:var(--text-light); font-size:13px; line-height:1.8; }
+
+  /* HISTORY LOG */
+  .history-log { margin-top:12px; display:none; }
+  .history-log.show { display:block; }
+  .history-item { background:var(--green-lighter); border-radius:8px; padding:8px 12px; margin-bottom:6px; font-size:12px; color:var(--text-mid); }
+  .history-time { font-size:10px; color:var(--text-light); margin-bottom:3px; font-family:'DM Mono',monospace; }
+  .history-score { font-weight:600; color:var(--green-darker); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">QA Exercise Lab 🧪</div>
+      <div class="header-sub">Gorest API · Real API · จำความคืบหน้าได้แล้ว!</div>
+    </div>
+    <div class="animals-h">
+      <svg class="a-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="40" cy="55" rx="18" ry="16" fill="white" opacity="0.9"/>
+        <circle cx="40" cy="34" r="16" fill="white" opacity="0.9"/>
+        <polygon points="27,22 22,10 33,18" fill="white" opacity="0.9"/>
+        <polygon points="53,22 58,10 47,18" fill="white" opacity="0.9"/>
+        <polygon points="28,21 24,13 32,18" fill="#F7BCAB"/>
+        <polygon points="52,21 56,13 48,18" fill="#F7BCAB"/>
+        <ellipse cx="34" cy="32" rx="3" ry="3.5" fill="#2E6B32"/>
+        <ellipse cx="46" cy="32" rx="3" ry="3.5" fill="#2E6B32"/>
+        <circle cx="34" cy="32" r="1.5" fill="#1a1a1a"/>
+        <circle cx="46" cy="32" r="1.5" fill="#1a1a1a"/>
+        <ellipse cx="40" cy="37" rx="2" ry="1.2" fill="#F7BCAB"/>
+        <path d="M37 39 Q40 42 43 39" stroke="#ccc" stroke-width="1" fill="none"/>
+        <line x1="20" y1="36" x2="33" y2="37" stroke="#aaa" stroke-width="0.8"/>
+        <line x1="47" y1="37" x2="60" y2="36" stroke="#aaa" stroke-width="0.8"/>
+        <path d="M56 60 Q70 50 65 40" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.9"/>
+      </svg>
+      <svg class="a-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="40" cy="56" rx="19" ry="15" fill="#F7C87A" opacity="0.9"/>
+        <circle cx="40" cy="34" r="17" fill="#F7C87A" opacity="0.9"/>
+        <ellipse cx="23" cy="30" rx="7" ry="12" fill="#E8A84A" opacity="0.95" transform="rotate(-15 23 30)"/>
+        <ellipse cx="57" cy="30" rx="7" ry="12" fill="#E8A84A" opacity="0.95" transform="rotate(15 57 30)"/>
+        <ellipse cx="40" cy="40" rx="9" ry="7" fill="#FDDBA0" opacity="0.9"/>
+        <ellipse cx="40" cy="36" rx="4" ry="2.5" fill="#3a2a1a"/>
+        <circle cx="33" cy="31" r="4" fill="#3a2a1a"/>
+        <circle cx="47" cy="31" r="4" fill="#3a2a1a"/>
+        <circle cx="34" cy="30" r="1.5" fill="white"/>
+        <circle cx="48" cy="30" r="1.5" fill="white"/>
+        <path d="M35 42 Q40 47 45 42" stroke="#c08050" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="40" cy="46" rx="4" ry="3" fill="#F7BCAB"/>
+        <path d="M26 46 Q40 52 54 46" stroke="#80C783" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="40" cy="50" r="2.5" fill="#4E9E52"/>
+      </svg>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span id="prog-label">ความคืบหน้า</span><span id="prog-text">กำลังโหลด...</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showPhase('a',this)">A · Basic CRUD</button>
+  <button class="phase-btn" onclick="showPhase('b',this)">B · Negative</button>
+  <button class="phase-btn" onclick="showPhase('c',this)">C · Auth</button>
+  <button class="phase-btn" onclick="showPhase('d',this)">D · E2E Flow</button>
+  <button class="phase-btn" onclick="showPhase('e',this)">E · Environment</button>
+  <button class="phase-btn" onclick="showPhase('f',this)">F · Data-driven</button>
+  <button class="phase-btn" onclick="showPhase('g',this)">G · Newman</button>
+</div>
+
+<div class="content">
+
+<div id="phase-a" class="phase-panel active">
+  <div class="api-info-bar">
+    🌐 <b>Gorest API</b> — Real API มีฐานข้อมูลจริง ไม่ใช่ mock<br>
+    <b>Base URL:</b> <code>{{baseUrl}}</code> = <code>https://gorest.co.in/public/v2</code><br>
+    <b>Auth:</b> ทุก request ต้องใส่ <code>Authorization: Bearer {{token}}</code>
+  </div>
+
+  <!-- EX 1 -->
+  <div class="ex-card" id="card-1">
+    <div class="ex-header" onclick="toggleEx('1')">
+      <div class="ex-num" id="num-1">1</div>
+      <div class="ex-title">GET All Users</div>
+      <div class="ex-meta">
+        <span class="ex-badge badge-new" id="badge-1">เริ่มได้เลย</span>
+        <span class="ex-score" id="score-display-1"></span>
+      </div>
+      <span class="chevron" id="chev-1">▼</span>
+    </div>
+    <div class="ex-body" id="body-1">
+      <div class="ex-desc">ดึงรายการ user ทั้งหมด เช็ค array structure และ field ให้ครบ เหมือน GET list ในงานจริง</div>
+      <div class="ex-section">ตั้งค่า Request</div>
+      <div class="info-box">
+        <b>Method:</b> <code>GET</code><br>
+        <b>URL:</b> <code>{{baseUrl}}/users</code><br>
+        <b>Header:</b> <code>Authorization: Bearer {{token}}</code>
+      </div>
+      <div class="ex-section">Response ที่จะได้</div>
+      <div class="response-box">[
+  {
+    "id": 7053240,
+    "name": "Abhimanyu Agarwal",
+    "email": "abhimanyu@example.com",
+    "gender": "male",
+    "status": "active"
+  }, ...
+]</div>
+      <div class="ex-section">โจทย์</div>
+      <div class="task-list">
+        <div class="task-item"><div class="task-num">1</div>เช็ค status 200</div>
+        <div class="task-item"><div class="task-num">2</div>เช็คว่า response เป็น array</div>
+        <div class="task-item"><div class="task-num">3</div>เช็คว่า array ไม่ว่าง</div>
+        <div class="task-item"><div class="task-num">4</div>เช็คว่า object อันแรกมี field <code>id</code>, <code>name</code>, <code>email</code>, <code>gender</code>, <code>status</code></div>
+        <div class="task-item"><div class="task-num">5</div>เช็ค type: <code>id</code> เป็น number, <code>name</code> เป็น string</div>
+        <div class="task-item"><div class="task-num">6</div>เช็คว่า <code>status</code> เป็น "active" หรือ "inactive" เท่านั้น</div>
+        <div class="task-item"><div class="task-num">7</div>เช็คว่า <code>email</code> มี @ อยู่ด้วย</div>
+        <div class="task-item"><div class="task-num">8</div>บันทึก <code>id</code> อันแรกไว้ใน collectionVariables ชื่อ <code>userId</code></div>
+      </div>
+
+      <div id="saved-section-1" style="display:none">
+        <div class="saved-label">
+          📝 Script ที่ส่งล่าสุด
+          <span class="toggle-saved" onclick="toggleSaved('1')">ซ่อน/แสดง</span>
+        </div>
+        <div class="saved-answer" id="saved-ans-1"></div>
+        <div id="hint-log-1" class="history-log"></div>
+      </div>
+
+      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
+      <textarea id="ans-1" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
+      <div class="btn-row">
+        <button class="btn-check" onclick="checkEx('1')">✅ ตรวจคำตอบ</button>
+        <button class="btn-hint" onclick="showHint('1')">💡 คำใบ้</button>
+        <button class="btn-reset" onclick="resetEx('1')">↺ ล้าง</button>
+      </div>
+      <div class="feedback" id="fb-1"></div>
+    </div>
+  </div>
+
+  <!-- EX 2 -->
+  <div class="ex-card" id="card-2">
+    <div class="ex-header" onclick="toggleEx('2')">
+      <div class="ex-num" id="num-2">2</div>
+      <div class="ex-title">GET Single User</div>
+      <div class="ex-meta">
+        <span class="ex-badge badge-lock" id="badge-2">🔒 ทำ Ex 1 ก่อน</span>
+        <span class="ex-score" id="score-display-2"></span>
+      </div>
+      <span class="chevron" id="chev-2">▼</span>
+    </div>
+    <div class="ex-body" id="body-2">
+      <div class="ex-desc">ดึง user เดียวโดยใช้ userId จาก Ex 1 เช็ค field ทุกตัวละเอียด</div>
+      <div class="ex-section">ตั้งค่า Request</div>
+      <div class="info-box">
+        <b>Method:</b> <code>GET</code><br>
+        <b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br>
+        <b>Header:</b> <code>Authorization: Bearer {{token}}</code>
+      </div>
+      <div class="ex-section">โจทย์</div>
+      <div class="task-list">
+        <div class="task-item"><div class="task-num">1</div>เช็ค status 200</div>
+        <div class="task-item"><div class="task-num">2</div>เช็คว่า <code>id</code> ตรงกับ userId ที่บันทึกไว้</div>
+        <div class="task-item"><div class="task-num">3</div>เช็ค type ทุก field: <code>id</code> number, <code>name</code> string, <code>email</code> string, <code>gender</code> string, <code>status</code> string</div>
+        <div class="task-item"><div class="task-num">4</div>เช็คว่า <code>gender</code> เป็น "male" หรือ "female" เท่านั้น</div>
+        <div class="task-item"><div class="task-num">5</div>เช็คว่า <code>status</code> เป็น "active" หรือ "inactive" เท่านั้น</div>
+        <div class="task-item"><div class="task-num">6</div>เช็ค response time ไม่เกิน 3000ms</div>
+      </div>
+      <div id="saved-section-2" style="display:none">
+        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('2')">ซ่อน/แสดง</span></div>
+        <div class="saved-answer" id="saved-ans-2"></div>
+      </div>
+      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
+      <textarea id="ans-2" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
+      <div class="btn-row">
+        <button class="btn-check" onclick="checkEx('2')">✅ ตรวจคำตอบ</button>
+        <button class="btn-hint" onclick="showHint('2')">💡 คำใบ้</button>
+        <button class="btn-reset" onclick="resetEx('2')">↺ ล้าง</button>
+      </div>
+      <div class="feedback" id="fb-2"></div>
+    </div>
+  </div>
+
+  <!-- EX 3 -->
+  <div class="ex-card" id="card-3">
+    <div class="ex-header" onclick="toggleEx('3')">
+      <div class="ex-num" id="num-3">3</div>
+      <div class="ex-title">POST Create User</div>
+      <div class="ex-meta">
+        <span class="ex-badge badge-lock" id="badge-3">🔒 ทำ Ex 2 ก่อน</span>
+        <span class="ex-score" id="score-display-3"></span>
+      </div>
+      <span class="chevron" id="chev-3">▼</span>
+    </div>
+    <div class="ex-body" id="body-3">
+      <div class="ex-desc">สร้าง user ใหม่ เช็ค response และบันทึก id สำหรับ exercise ถัดไป</div>
+      <div class="ex-section">ตั้งค่า Request</div>
+      <div class="info-box">
+        <b>Method:</b> <code>POST</code><br>
+        <b>URL:</b> <code>{{baseUrl}}/users</code><br>
+        <b>Header:</b> <code>Authorization: Bearer {{token}}</code> + <code>Content-Type: application/json</code><br>
+        <b>Body:</b> <code>{ "name": "QA Tester", "email": "qa_{{$randomInt}}@mail.com", "gender": "female", "status": "active" }</code>
+      </div>
+      <div class="ex-section">โจทย์</div>
+      <div class="task-list">
+        <div class="task-item"><div class="task-num">1</div>เช็ค status 201</div>
+        <div class="task-item"><div class="task-num">2</div>เช็คว่ามี field <code>id</code> และเป็น number</div>
+        <div class="task-item"><div class="task-num">3</div>เช็คว่า <code>name</code> ตรงกับที่ส่งไป</div>
+        <div class="task-item"><div class="task-num">4</div>เช็คว่า <code>status</code> เป็น "active"</div>
+        <div class="task-item"><div class="task-num">5</div>เช็คว่า <code>gender</code> เป็น "female"</div>
+        <div class="task-item"><div class="task-num">6</div>บันทึก <code>id</code> ใน collectionVariables ชื่อ <code>newUserId</code></div>
+        <div class="task-item"><div class="task-num">7</div>บันทึก <code>email</code> ใน collectionVariables ชื่อ <code>newUserEmail</code></div>
+      </div>
+      <div id="saved-section-3" style="display:none">
+        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('3')">ซ่อน/แสดง</span></div>
+        <div class="saved-answer" id="saved-ans-3"></div>
+      </div>
+      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
+      <textarea id="ans-3" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
+      <div class="btn-row">
+        <button class="btn-check" onclick="checkEx('3')">✅ ตรวจคำตอบ</button>
+        <button class="btn-hint" onclick="showHint('3')">💡 คำใบ้</button>
+        <button class="btn-reset" onclick="resetEx('3')">↺ ล้าง</button>
+      </div>
+      <div class="feedback" id="fb-3"></div>
+    </div>
+  </div>
+
+  <!-- EX 4 -->
+  <div class="ex-card" id="card-4">
+    <div class="ex-header" onclick="toggleEx('4')">
+      <div class="ex-num" id="num-4">4</div>
+      <div class="ex-title">PUT Update User</div>
+      <div class="ex-meta">
+        <span class="ex-badge badge-lock" id="badge-4">🔒 ทำ Ex 3 ก่อน</span>
+        <span class="ex-score" id="score-display-4"></span>
+      </div>
+      <span class="chevron" id="chev-4">▼</span>
+    </div>
+    <div class="ex-body" id="body-4">
+      <div class="ex-desc">แก้ไข user ที่สร้างไว้ใน Ex 3 เช็คว่าค่าเปลี่ยนจริงและ field อื่นไม่หาย</div>
+      <div class="ex-section">ตั้งค่า Request</div>
+      <div class="info-box">
+        <b>Method:</b> <code>PUT</code><br>
+        <b>URL:</b> <code>{{baseUrl}}/users/{{newUserId}}</code><br>
+        <b>Body:</b> <code>{ "name": "QA Tester Updated", "status": "inactive" }</code>
+      </div>
+      <div class="ex-section">โจทย์</div>
+      <div class="task-list">
+        <div class="task-item"><div class="task-num">1</div>เช็ค status 200</div>
+        <div class="task-item"><div class="task-num">2</div>เช็คว่า <code>name</code> เปลี่ยนเป็น "QA Tester Updated"</div>
+        <div class="task-item"><div class="task-num">3</div>เช็คว่า <code>status</code> เปลี่ยนเป็น "inactive"</div>
+        <div class="task-item"><div class="task-num">4</div>เช็คว่า <code>id</code> ยังตรงกับ newUserId</div>
+        <div class="task-item"><div class="task-num">5</div>เช็คว่า <code>email</code> ยังตรงกับ newUserEmail</div>
+        <div class="task-item"><div class="task-num">6</div>เช็ค response time ไม่เกิน 3000ms</div>
+      </div>
+      <div id="saved-section-4" style="display:none">
+        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('4')">ซ่อน/แสดง</span></div>
+        <div class="saved-answer" id="saved-ans-4"></div>
+      </div>
+      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
+      <textarea id="ans-4" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
+      <div class="btn-row">
+        <button class="btn-check" onclick="checkEx('4')">✅ ตรวจคำตอบ</button>
+        <button class="btn-hint" onclick="showHint('4')">💡 คำใบ้</button>
+        <button class="btn-reset" onclick="resetEx('4')">↺ ล้าง</button>
+      </div>
+      <div class="feedback" id="fb-4"></div>
+    </div>
+  </div>
+
+  <!-- EX 5 -->
+  <div class="ex-card" id="card-5">
+    <div class="ex-header" onclick="toggleEx('5')">
+      <div class="ex-num" id="num-5">5</div>
+      <div class="ex-title">DELETE User + Verify</div>
+      <div class="ex-meta">
+        <span class="ex-badge badge-lock" id="badge-5">🔒 ทำ Ex 4 ก่อน</span>
+        <span class="ex-score" id="score-display-5"></span>
+      </div>
+      <span class="chevron" id="chev-5">▼</span>
+    </div>
+    <div class="ex-body" id="body-5">
+      <div class="ex-desc">ลบ user แล้ว GET ซ้ำยืนยันว่าหายจริง — verify deletion ที่ QA ต้องทำเสมอ</div>
+      <div class="ex-section">ตั้งค่า Request</div>
+      <div class="info-box">
+        <b>Request 1 DELETE:</b> <code>DELETE {{baseUrl}}/users/{{newUserId}}</code><br>
+        <b>Request 2 GET (verify):</b> <code>GET {{baseUrl}}/users/{{newUserId}}</code> → คาดว่าได้ 404
+      </div>
+      <div class="ex-section">โจทย์</div>
+      <div class="task-list">
+        <div class="task-item"><div class="task-num">1</div>Request 1: เช็ค status 204</div>
+        <div class="task-item"><div class="task-num">2</div>Request 2: เช็คว่าได้ 404</div>
+        <div class="task-item"><div class="task-num">3</div>Request 2: เช็คว่า response มี field <code>message</code></div>
+      </div>
+      <div id="saved-section-5" style="display:none">
+        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('5')">ซ่อน/แสดง</span></div>
+        <div class="saved-answer" id="saved-ans-5"></div>
+      </div>
+      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script (Request 1)</label>
+      <textarea id="ans-5" placeholder="pm.test(...)"></textarea>
+      <div class="btn-row">
+        <button class="btn-check" onclick="checkEx('5')">✅ ตรวจคำตอบ</button>
+        <button class="btn-hint" onclick="showHint('5')">💡 คำใบ้</button>
+        <button class="btn-reset" onclick="resetEx('5')">↺ ล้าง</button>
+      </div>
+      <div class="feedback" id="fb-5"></div>
+    </div>
+  </div>
+</div>
+
+<div id="phase-b" class="phase-panel"><div class="lock-msg">🔒 ทำ Phase A ให้ครบก่อนนะครับ<br>Phase B: Negative Test — 404, 422, 401</div></div>
+<div id="phase-c" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase B<br>Phase C: Auth Token Management</div></div>
+<div id="phase-d" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase C<br>Phase D: E2E Flow</div></div>
+<div id="phase-e" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase D<br>Phase E: Environment</div></div>
+<div id="phase-f" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase E<br>Phase F: Data-driven + CSV</div></div>
+<div id="phase-g" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase F<br>Phase G: Newman CLI + GitHub Portfolio</div></div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'qa_lab_progress'
+
+const hints = {
+  '1': ["const body = pm.response.json() ก่อนเสมอ", "body เป็น array → pm.expect(body).to.be.an('array')", "เช็ค status: pm.expect(body[0].status).to.be.oneOf(['active','inactive'])", "บันทึก: pm.collectionVariables.set('userId', body[0].id)"],
+  '2': ["pm.expect(body.id).to.equal(pm.collectionVariables.get('userId'))", "pm.expect(body.gender).to.be.oneOf(['male','female'])", "pm.expect(pm.response.responseTime).to.be.below(3000)"],
+  '3': ["status 201 สำหรับ POST ที่สร้างสำเร็จ", "pm.expect(body.name).to.equal('QA Tester')", "บันทึก 2 ค่า: set('newUserId', body.id) และ set('newUserEmail', body.email)"],
+  '4': ["pm.expect(body.name).to.equal('QA Tester Updated')", "pm.expect(body.email).to.equal(pm.collectionVariables.get('newUserEmail'))", "pm.expect(body.id).to.equal(pm.collectionVariables.get('newUserId'))"],
+  '5': ["DELETE return 204 No Content — ไม่มี body", "pm.response.to.have.status(204)", "Request 2: pm.response.to.have.status(404)"]
+}
+
+const checkMap = {
+  '1': [
+    {key:"pm.test", label:"มี pm.test()"},
+    {key:"status(200)", label:"เช็ค status 200"},
+    {key:"be.an('array')", label:"เช็คว่าเป็น array"},
+    {key:"above(0)", label:"เช็คว่า array ไม่ว่าง"},
+    {key:"property('id')", label:"เช็คว่ามี field id"},
+    {key:"be.a('number')", label:"เช็ค type เป็น number"},
+    {key:"be.a('string')", label:"เช็ค type เป็น string"},
+    {key:"oneOf", label:"เช็ค status active/inactive"},
+    {key:"include('@')", label:"เช็ค email มี @"},
+    {key:"collectionVariables.set", label:"บันทึก userId"}
+  ],
+  '2': [
+    {key:"pm.test", label:"มี pm.test()"},
+    {key:"status(200)", label:"เช็ค status 200"},
+    {key:"collectionVariables.get", label:"เช็ค id ตรงกับที่บันทึกไว้"},
+    {key:"be.a('number')", label:"เช็ค type number"},
+    {key:"be.a('string')", label:"เช็ค type string"},
+    {key:"oneOf(['male','female'])", label:"เช็ค gender"},
+    {key:"below(3000)", label:"เช็ค response time"}
+  ],
+  '3': [
+    {key:"pm.test", label:"มี pm.test()"},
+    {key:"status(201)", label:"เช็ค status 201"},
+    {key:"property('id')", label:"เช็คว่ามี field id"},
+    {key:"be.a('number')", label:"เช็ค id เป็น number"},
+    {key:"QA Tester", label:"เช็ค name ตรง"},
+    {key:"active", label:"เช็ค status active"},
+    {key:"female", label:"เช็ค gender female"},
+    {key:"set('newUserId'", label:"บันทึก newUserId"},
+    {key:"set('newUserEmail'", label:"บันทึก newUserEmail"}
+  ],
+  '4': [
+    {key:"pm.test", label:"มี pm.test()"},
+    {key:"status(200)", label:"เช็ค status 200"},
+    {key:"QA Tester Updated", label:"เช็ค name เปลี่ยนแล้ว"},
+    {key:"inactive", label:"เช็ค status inactive"},
+    {key:"get('newUserId')", label:"เช็ค id ตรงกับ newUserId"},
+    {key:"get('newUserEmail')", label:"เช็ค email ยังตรง"},
+    {key:"below(3000)", label:"เช็ค response time"}
+  ],
+  '5': [
+    {key:"pm.test", label:"มี pm.test()"},
+    {key:"status(204)", label:"เช็ค status 204 สำหรับ DELETE"}
+  ]
+}
+
+// STORAGE
+async function saveProgress(data) {
+  try { await window.storage.set(STORAGE_KEY, JSON.stringify(data)) } catch(e) {}
+}
+
+async function loadProgress() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY)
+    return result ? JSON.parse(result.value) : {}
+  } catch(e) { return {} }
+}
+
+let progress = {}
+
+async function init() {
+  progress = await loadProgress()
+  const total = 17
+  const done = Object.keys(progress).filter(k => progress[k]?.passed).length
+  updateProgressBar(done, total)
+
+  // restore state
+  for (let n = 1; n <= 5; n++) {
+    const key = String(n)
+    const data = progress[key]
+    if (data?.passed) {
+      markPassed(key, false)
+      if (data.score !== undefined) {
+        document.getElementById('score-display-' + key).textContent = `${data.score}%`
+      }
+    }
+    if (data?.lastScript) {
+      document.getElementById('ans-' + key).value = data.lastScript
+      document.getElementById('saved-ans-' + key).textContent = data.lastScript
+      document.getElementById('saved-section-' + key).style.display = 'block'
+      document.getElementById('saved-ans-' + key).classList.add('show')
+    }
+  }
+
+  // unlock based on progress
+  for (let n = 2; n <= 5; n++) {
+    const prev = String(n - 1)
+    if (progress[prev]?.passed) {
+      const badge = document.getElementById('badge-' + n)
+      if (badge && badge.className.includes('lock')) {
+        badge.className = 'ex-badge badge-new'
+        badge.textContent = 'เริ่มได้เลย'
+      }
+    }
+  }
+}
+
+function updateProgressBar(done, total) {
+  document.getElementById('prog-text').textContent = `${done} / ${total} exercises`
+  document.getElementById('prog-fill').style.width = (done/total*100) + '%'
+}
+
+function toggleEx(n) {
+  const body = document.getElementById('body-' + n)
+  const chev = document.getElementById('chev-' + n)
+  const isOpen = body.classList.contains('open')
+  document.querySelectorAll('.ex-body').forEach(b => b.classList.remove('open'))
+  document.querySelectorAll('.chevron').forEach(c => c.style.transform = '')
+  if (!isOpen) { body.classList.add('open'); chev.style.transform = 'rotate(180deg)' }
+}
+
+function markPassed(n, animate = true) {
+  const numEl = document.getElementById('num-' + n)
+  numEl.classList.add('done')
+  numEl.textContent = '✓'
+  document.getElementById('card-' + n).classList.add('completed')
+  const badge = document.getElementById('badge-' + n)
+  badge.className = 'ex-badge badge-done'
+  badge.textContent = '✅ ผ่านแล้ว'
+  const nextN = String(parseInt(n) + 1)
+  const nextBadge = document.getElementById('badge-' + nextN)
+  if (nextBadge && nextBadge.className.includes('lock')) {
+    nextBadge.className = 'ex-badge badge-new'
+    nextBadge.textContent = 'เริ่มได้เลย'
+  }
+}
+
+async function checkEx(n) {
+  const ans = document.getElementById('ans-' + n).value.trim()
+  const fb = document.getElementById('fb-' + n)
+
+  if (ans.length < 20) {
+    fb.className = 'feedback fail show'
+    fb.innerHTML = '<div class="fb-title">⚠️ ยังไม่ได้เขียนครับ</div>'
+    return
+  }
+
+  const items = checkMap[n] || []
+  const passed = items.filter(i => ans.includes(i.key))
+  const failed = items.filter(i => !ans.includes(i.key))
+  const score = Math.round(passed.length / items.length * 100)
+  const isPass = score >= 70
+
+  let html = `<div class="fb-title">${isPass ? '🎉 ผ่านแล้วครับ!' : '📝 ใกล้แล้ว ปรับเพิ่มอีกนิด'} (${score}%)</div>`
+  html += `<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${score}%"></div></div><div class="score-text">${passed.length}/${items.length}</div></div>`
+  if (passed.length) {
+    html += `<div class="fb-item" style="color:var(--green-darker);font-weight:600;margin:4px 0">✅ ถูกแล้ว</div>`
+    passed.forEach(p => html += `<div class="fb-item"><div class="fb-dot" style="background:var(--green)"></div>${p.label}</div>`)
+  }
+  if (failed.length) {
+    html += `<div class="fb-item" style="color:#C62828;font-weight:600;margin:8px 0 4px">❌ ยังขาด</div>`
+    failed.forEach(f => html += `<div class="fb-item"><div class="fb-dot" style="background:var(--red)"></div>${f.label}</div>`)
+  }
+  fb.className = `feedback ${isPass ? 'pass' : 'fail'} show`
+  fb.innerHTML = html
+
+  // save to storage
+  const now = new Date().toLocaleString('th-TH')
+  if (!progress[n]) progress[n] = {}
+  progress[n].lastScript = ans
+  progress[n].score = score
+  progress[n].lastAttempt = now
+  if (isPass) {
+    progress[n].passed = true
+    progress[n].passedAt = now
+    markPassed(n)
+    document.getElementById('score-display-' + n).textContent = `${score}%`
+    if (n === '5') unlockPhaseB()
+  }
+
+  // show saved script
+  document.getElementById('saved-ans-' + n).textContent = ans
+  document.getElementById('saved-section-' + n).style.display = 'block'
+  document.getElementById('saved-ans-' + n).classList.add('show')
+
+  const total = 17
+  const done = Object.keys(progress).filter(k => progress[k]?.passed).length
+  updateProgressBar(done, total)
+  await saveProgress(progress)
+}
+
+function showHint(n) {
+  const fb = document.getElementById('fb-' + n)
+  const h = hints[n] || []
+  let html = '<div class="fb-title">💡 คำใบ้</div>'
+  h.forEach(t => html += `<div class="fb-item"><div class="fb-dot" style="background:var(--accent)"></div>${t}</div>`)
+  fb.className = 'feedback hint-fb show'
+  fb.innerHTML = html
+
+  // log hint
+  if (!progress[n]) progress[n] = {}
+  if (!progress[n].hints) progress[n].hints = []
+  progress[n].hints.push(new Date().toLocaleString('th-TH'))
+  saveProgress(progress)
+}
+
+function resetEx(n) {
+  document.getElementById('ans-' + n).value = ''
+  document.getElementById('fb-' + n).className = 'feedback'
+  document.getElementById('fb-' + n).innerHTML = ''
+}
+
+function toggleSaved(n) {
+  const el = document.getElementById('saved-ans-' + n)
+  el.classList.toggle('show')
+}
+
+function showPhase(p, btn) {
+  document.querySelectorAll('.phase-panel').forEach(el => el.classList.remove('active'))
+  document.querySelectorAll('.phase-btn').forEach(el => el.classList.remove('active'))
+  document.getElementById('phase-' + p).classList.add('active')
+  btn.classList.add('active')
+}
+
+function unlockPhaseB() {
+  document.getElementById('phase-b').innerHTML = `
+  <div class="api-info-bar">🎯 <b>Phase B — Negative Test</b><br>Bug ส่วนใหญ่ซ่อนอยู่ในกรณีผิดปกติ ไม่ใช่ happy path</div>
+  <div class="ex-card"><div class="ex-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <div class="ex-num">6</div><div class="ex-title">GET User ที่ไม่มีอยู่ → 404</div>
+    <div class="ex-meta"><span class="ex-badge badge-new">เริ่มได้เลย</span></div><span class="chevron">▼</span>
+  </div><div class="ex-body">
+    <div class="ex-desc">ทดสอบว่า API ตอบ 404 ถูกต้องเมื่อ user ไม่มีอยู่</div>
+    <div class="info-box"><b>GET</b> <code>{{baseUrl}}/users/0000001</code><br>Header: <code>Authorization: Bearer {{token}}</code></div>
+    <div class="task-list">
+      <div class="task-item"><div class="task-num">1</div>เช็ค status 404</div>
+      <div class="task-item"><div class="task-num">2</div>เช็คว่า response มี field <code>message</code></div>
+      <div class="task-item"><div class="task-num">3</div>เช็คว่า <code>message</code> เป็น string</div>
+    </div>
+    <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
+    <textarea placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
+    <div class="btn-row">
+      <button class="btn-check" onclick="sendPrompt('ช่วยตรวจ Ex 6 Negative 404 ให้หน่อยครับ:\\n' + this.closest('.ex-body').querySelector('textarea').value)">✅ ส่งให้ตรวจ</button>
+      <button class="btn-hint" onclick="const fb=this.closest('.ex-body').querySelector('.feedback');fb.className='feedback hint-fb show';fb.innerHTML='<div class=fb-title>💡 คำใบ้</div><div class=fb-item>pm.response.to.have.status(404)</div><div class=fb-item>pm.expect(body).to.have.property(\'message\')</div><div class=fb-item>pm.expect(body.message).to.be.a(\'string\')</div>'">💡 คำใบ้</button>
+    </div><div class="feedback"></div>
+  </div></div>`
+}
+
+init()
+</script>
+</body>
+</html>
