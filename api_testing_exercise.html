@@ -492,7 +492,120 @@ function clearAll() {
 
 let progress = {}
 
-function init() {
+function unlockPhaseC() {
+  const pc = document.getElementById('phase-c')
+  if (pc.querySelector('.ex-card')) return
+  pc.innerHTML = `
+  <div class='api-info-bar'>🔐 <b>Phase C — Auth + Token</b><br>เรียนรู้การจัดการ token ใน Postman — ใช้ในงานจริงทุกวัน</div>
+  <div class='ex-card'>
+    <div class='ex-header' onclick='this.nextElementSibling.classList.toggle("open")'>
+      <div class='ex-num'>10</div><div class='ex-title'>จัดการ Token ใน Environment</div>
+      <div class='ex-meta'><span class='ex-badge badge-new'>เริ่มได้เลย</span></div><span class='chevron'>▼</span>
+    </div>
+    <div class='ex-body'>
+      <div class='ex-desc'>ฝึกดึง token จาก environment มาใช้ใน collectionVariables และเช็คว่า token ยังใช้งานได้อยู่</div>
+      <div class='ex-section'>ตั้งค่า Request</div>
+      <div class='info-box'><b>Method:</b> <code>GET</code><br><b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code></div>
+      <div class='ex-section'>โจทย์</div>
+      <div class='task-list'>
+        <div class='task-item'><div class='task-num'>1</div>เช็ค status 200 — ยืนยันว่า token ยังใช้งานได้</div>
+        <div class='task-item'><div class='task-num'>2</div>บันทึก token จาก environment ไว้ใน collectionVariables ชื่อ <code>authToken</code></div>
+        <div class='task-item'><div class='task-num'>3</div>เช็คว่า authToken ไม่เป็น undefined</div>
+        <div class='task-item'><div class='task-num'>4</div>console.log authToken ดูว่ามีค่า</div>
+      </div>
+      <label style='font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block'>✍️ เขียน Test Script</label>
+      <textarea id='ans-c-10' placeholder='pm.test(...)&#10;pm.collectionVariables.set(...)'></textarea>
+      <div class='btn-row'>
+        <button class='btn-check' onclick='checkExC("10")'>✅ ตรวจคำตอบ</button>
+        <button class='btn-hint' onclick='showHintC("10")'>💡 คำใบ้</button>
+        <button class='btn-reset' onclick='document.getElementById("ans-c-10").value="";document.getElementById("fb-c-10").className="feedback"'>↺ ล้าง</button>
+      </div>
+      <div class='feedback' id='fb-c-10'></div>
+    </div>
+  </div>
+  <div class='ex-card'>
+    <div class='ex-header' onclick='this.nextElementSibling.classList.toggle("open")'>
+      <div class='ex-num'>11</div><div class='ex-title'>Pre-request Script — Set Token อัตโนมัติ</div>
+      <div class='ex-meta'><span class='ex-badge badge-lock' id='badge-c-11'>🔒 ทำ Ex 10 ก่อน</span></div><span class='chevron'>▼</span>
+    </div>
+    <div class='ex-body'>
+      <div class='ex-desc'>เขียน Pre-request Script ให้ set Authorization header อัตโนมัติทุก request ไม่ต้องใส่ด้วยมือ</div>
+      <div class='ex-section'>ตั้งค่า</div>
+      <div class='info-box'><b>ไปที่ tab Pre-request Script</b> ของ request ใดก็ได้<br>แล้วเขียน script ให้ set token อัตโนมัติ</div>
+      <div class='ex-section'>โจทย์</div>
+      <div class='task-list'>
+        <div class='task-item'><div class='task-num'>1</div>ดึง token จาก environment ใน Pre-request Script</div>
+        <div class='task-item'><div class='task-num'>2</div>Set Authorization header อัตโนมัติด้วย Bearer token</div>
+        <div class='task-item'><div class='task-num'>3</div>ยิง request แล้วเช็คว่ายังได้ 200 อยู่</div>
+      </div>
+      <label style='font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block'>✍️ เขียน Pre-request Script</label>
+      <textarea id='ans-c-11' placeholder='const token = pm.environment.get("token")&#10;pm.request.headers.add({...})'></textarea>
+      <div class='btn-row'>
+        <button class='btn-check' onclick='checkExC("11")'>✅ ตรวจคำตอบ</button>
+        <button class='btn-hint' onclick='showHintC("11")'>💡 คำใบ้</button>
+        <button class='btn-reset' onclick='document.getElementById("ans-c-11").value="";document.getElementById("fb-c-11").className="feedback"'>↺ ล้าง</button>
+      </div>
+      <div class='feedback' id='fb-c-11'></div>
+    </div>
+  </div>`
+
+  const checkMapC = {
+    '10': [
+      {anyOf:['pm.test'], label:'มี pm.test()'},
+      {anyOf:['status(200)','have.status(200)'], label:'เช็ค status 200'},
+      {anyOf:['collectionVariables.set'], label:'บันทึก authToken'},
+      {anyOf:['authToken'], label:'ใช้ชื่อ authToken'},
+      {anyOf:['console.log'], label:'console.log ดู token'}
+    ],
+    '11': [
+      {anyOf:['environment.get'], label:'ดึง token จาก environment'},
+      {anyOf:['headers.add','Authorization'], label:'Set Authorization header'},
+      {anyOf:['Bearer'], label:'ใส่ Bearer ด้วย'}
+    ]
+  }
+
+  const hintsC = {
+    '10': ['pm.collectionVariables.set("authToken", pm.environment.get("token"))', 'pm.expect(pm.collectionVariables.get("authToken")).to.not.be.undefined', 'console.log("token:", pm.collectionVariables.get("authToken"))'],
+    '11': ['const token = pm.environment.get("token")', 'pm.request.headers.add({ key: "Authorization", value:  })']
+  }
+
+  window.checkExC = function(n) {
+    const ta = document.getElementById('ans-c-' + n)
+    const fb = document.getElementById('fb-c-' + n)
+    const ans = ta.value.trim()
+    if (ans.length < 10) { fb.className = 'feedback fail show'; fb.innerHTML = '<div class="fb-title">⚠️ ยังไม่ได้เขียนครับ</div>'; return }
+    const items = checkMapC[n] || []
+    const itemPassed = i => i.anyOf ? i.anyOf.some(k => ans.includes(k)) : ans.includes(i.key)
+    const passed = items.filter(i => itemPassed(i))
+    const failed = items.filter(i => !itemPassed(i))
+    const score = Math.round(passed.length / items.length * 100)
+    const isPass = score >= 70
+    let html = '<div class="fb-title">' + (isPass ? '🎉 ผ่านแล้วครับ!' : '📝 ใกล้แล้ว') + ' (' + score + '%)</div>'
+    html += '<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:' + score + '%"></div></div><div class="score-text">' + passed.length + '/' + items.length + '</div></div>'
+    if (passed.length) { html += '<div class="fb-item" style="color:var(--green-darker);font-weight:600">✅ ถูกแล้ว</div>'; passed.forEach(p => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--green)"></div>' + p.label + '</div>') }
+    if (failed.length) { html += '<div class="fb-item" style="color:#C62828;font-weight:600;margin-top:6px">❌ ยังขาด</div>'; failed.forEach(f => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--red)"></div>' + f.label + '</div>') }
+    fb.className = 'feedback ' + (isPass ? 'pass' : 'fail') + ' show'
+    fb.innerHTML = html
+    if (isPass) {
+      if (!progress[n]) progress[n] = {}
+      progress[n].passed = true; progress[n].score = score; progress[n].lastScript = ans
+      save(progress)
+      const done = Object.keys(progress).filter(k => progress[k]?.passed).length
+      updateBar(done)
+      if (n === '10') { const nb = document.getElementById('badge-c-11'); if (nb) { nb.className = 'ex-badge badge-new'; nb.textContent = 'เริ่มได้เลย' } }
+    }
+  }
+
+  window.showHintC = function(n) {
+    const fb = document.getElementById('fb-c-' + n)
+    const h = hintsC[n] || []
+    let html = '<div class="fb-title">💡 คำใบ้</div>'
+    h.forEach(t => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--accent)"></div>' + t + '</div>')
+    fb.className = 'feedback hint-fb show'; fb.innerHTML = html
+  }
+}
+
+init() {
   progress = load()
   let done = 0
   for (let n = 1; n <= 5; n++) {
@@ -518,6 +631,8 @@ function init() {
     }
   }
   if (progress['5']?.passed) unlockPhaseB()
+  const phaseBDone = ['6','7','8','9'].every(k => progress[k]?.passed)
+  if (phaseBDone) setTimeout(() => unlockPhaseC(), 100)
   updateBar(done)
 }
 
@@ -699,7 +814,10 @@ function checkExB(n) {
     // unlock next
     const nextId = 'badge-b-' + (parseInt(n)+1)
     const nb = document.getElementById(nextId)
-    if (nb && nb.classList.contains('badge-lock')) { nb.className = 'ex-badge badge-new'; nb.textContent = 'เริ่มได้เลย' }
+    if (nb && nb.classList.contains("badge-lock")) { nb.className = "ex-badge badge-new"; nb.textContent = "เริ่มได้เลย" }
+    // check if all phase B done
+    const phaseBAllDone = ["6","7","8","9"].every(k => progress[k]?.passed)
+    if (phaseBAllDone) setTimeout(() => unlockPhaseC(), 200)
   }
 }
 
@@ -809,6 +927,7 @@ function unlockPhaseB() {
     }
   }
 }
+
 
 init()
 </script>
