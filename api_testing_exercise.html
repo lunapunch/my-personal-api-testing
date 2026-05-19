@@ -5,105 +5,87 @@
 <title>QA Exercise Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green: #80C783; --green-light: #C8E9C9; --green-lighter: #EBF6EB;
-    --green-dark: #4E9E52; --green-darker: #2E6B32;
-    --cream: #F6FBF6; --white: #fff; --text: #1C3A1E;
-    --text-mid: #4A7A4D; --text-light: #80A882;
-    --code-bg: #1E3320; --accent: #F7C87A; --pink: #F7BCAB;
-    --red: #E57373; --red-light: #FFEBEE;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); font-size: 14px; }
-
-  .header { background: linear-gradient(135deg, #80C783 0%, #4E9E52 60%, #2E6B32 100%); padding: 20px 20px 16px; position: relative; overflow: hidden; }
-  .header::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.08); }
-  .header-top { display:flex; align-items:center; justify-content:space-between; }
-  .header-title { font-family:'Playfair Display',serif; font-size:22px; color:white; }
-  .header-sub { font-size:12px; color:rgba(255,255,255,0.75); margin-top:3px; }
-  .progress-wrap { margin-top:14px; }
-  .progress-label { display:flex; justify-content:space-between; font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:5px; }
-  .progress-bar { height:6px; background:rgba(255,255,255,0.2); border-radius:3px; overflow:hidden; }
-  .progress-fill { height:100%; background:white; border-radius:3px; transition:width 0.4s; }
-  .a-svg { width:44px; height:44px; }
-  .animals-h { display:flex; gap:4px; }
-
-  .phase-nav { background:white; border-bottom:2px solid var(--green-light); padding:0 16px; display:flex; gap:0; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:10; }
-  .phase-nav::-webkit-scrollbar { display:none; }
-  .phase-btn { font-size:12px; font-weight:500; padding:10px 12px; border:none; background:none; cursor:pointer; color:var(--text-light); border-bottom:2.5px solid transparent; white-space:nowrap; transition:all 0.2s; }
-  .phase-btn:hover { color:var(--green-dark); }
-  .phase-btn.active { color:var(--green-dark); border-bottom-color:var(--green); }
-
-  .content { padding:16px; }
-  .phase-panel { display:none; }
-  .phase-panel.active { display:block; animation:fadeIn 0.2s ease; }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
-
-  .api-info-bar { background:var(--green-darker); color:white; border-radius:12px; padding:12px 16px; margin-bottom:14px; font-size:13px; line-height:1.7; }
-  .api-info-bar code { background:rgba(255,255,255,0.15); padding:1px 7px; border-radius:5px; font-family:'DM Mono',monospace; font-size:12px; }
-
-  .ex-card { background:white; border:1.5px solid var(--green-light); border-radius:14px; margin-bottom:12px; overflow:hidden; transition:border-color 0.2s; }
-  .ex-card.completed { border-color:var(--green); }
-  .ex-header { padding:14px 16px 12px; cursor:pointer; display:flex; align-items:center; gap:10px; }
-  .ex-num { width:28px; height:28px; border-radius:8px; background:var(--green-light); color:var(--green-darker); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.3s; }
-  .ex-num.done { background:var(--green); color:white; }
-  .ex-title { font-family:'Playfair Display',serif; font-size:14px; color:var(--green-darker); flex:1; }
-  .ex-meta { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
-  .ex-badge { font-size:10px; padding:2px 8px; border-radius:20px; font-weight:600; }
-  .badge-new { background:#EBF6EB; color:var(--green-dark); }
-  .badge-lock { background:#f0f0f0; color:#aaa; }
-  .badge-done { background:var(--green-light); color:var(--green-darker); }
-  .ex-score { font-size:10px; color:var(--green-dark); font-family:'DM Mono',monospace; }
-  .chevron { font-size:12px; color:var(--text-light); transition:transform 0.2s; }
-  .ex-body { display:none; padding:0 16px 16px; border-top:1px solid var(--green-lighter); }
-  .ex-body.open { display:block; }
-
-  .ex-desc { font-size:13px; color:var(--text-mid); line-height:1.7; margin:12px 0 10px; }
-  .ex-section { font-size:11px; font-weight:700; color:var(--green-darker); margin:12px 0 6px; letter-spacing:0.05em; text-transform:uppercase; }
-  .info-box { background:var(--green-lighter); border-radius:10px; padding:10px 13px; font-size:13px; color:var(--text-mid); line-height:1.7; margin:8px 0; }
-  .info-box code { font-family:'DM Mono',monospace; font-size:12px; background:white; padding:1px 6px; border-radius:5px; color:var(--green-darker); }
-  .info-box b { color:var(--green-darker); }
-  .response-box { background:var(--code-bg); border-radius:10px; padding:10px 13px; font-family:'DM Mono',monospace; font-size:11.5px; color:#C8E9C9; line-height:1.8; margin:8px 0; overflow-x:auto; white-space:pre; }
-  .task-list { display:flex; flex-direction:column; gap:6px; margin:8px 0; }
-  .task-item { display:flex; gap:8px; align-items:flex-start; padding:8px 10px; background:var(--green-lighter); border-radius:8px; font-size:13px; color:var(--text); line-height:1.5; }
-  .task-num { width:20px; height:20px; border-radius:50%; background:var(--green-light); color:var(--green-darker); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-  .task-item code { font-family:'DM Mono',monospace; font-size:11px; background:white; padding:1px 5px; border-radius:4px; color:var(--green-darker); }
-
-  .saved-label { font-size:11px; color:var(--green-dark); font-weight:600; margin:10px 0 4px; display:flex; align-items:center; justify-content:space-between; }
-  .toggle-saved { font-size:11px; color:var(--text-light); cursor:pointer; text-decoration:underline; }
-  .saved-answer { background:var(--code-bg); border-radius:10px; padding:12px 14px; font-family:'DM Mono',monospace; font-size:11px; color:#C8E9C9; line-height:1.8; margin:4px 0 8px; max-height:140px; overflow-y:auto; white-space:pre-wrap; display:none; }
-  .saved-answer.show { display:block; }
-
-  textarea { width:100%; min-height:160px; background:var(--code-bg); color:#C8E9C9; font-family:'DM Mono',monospace; font-size:12px; line-height:1.8; border:none; border-radius:10px; padding:14px 16px; resize:vertical; outline:none; margin-top:10px; }
-  textarea::placeholder { color:rgba(200,233,201,0.25); }
-  textarea:focus { box-shadow:0 0 0 2px var(--green); }
-
-  .btn-row { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
-  .btn-check { background:var(--green); color:white; border:none; border-radius:10px; padding:10px 20px; font-size:13px; font-weight:500; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background 0.2s; }
-  .btn-check:hover { background:var(--green-dark); }
-  .btn-hint { background:none; color:var(--green-dark); border:1.5px solid var(--green-light); border-radius:10px; padding:10px 16px; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; }
-  .btn-hint:hover { background:var(--green-lighter); }
-  .btn-reset { background:none; color:var(--text-light); border:1.5px solid #e0e0e0; border-radius:10px; padding:10px 16px; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; }
-  .btn-clear { background:none; color:#E57373; border:1.5px solid #FFCDD2; border-radius:10px; padding:10px 16px; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; }
-
-  .feedback { margin-top:12px; border-radius:12px; padding:14px 16px; display:none; }
-  .feedback.show { display:block; }
-  .feedback.pass { background:#E8F5E8; border:1.5px solid var(--green-light); }
-  .feedback.fail { background:var(--red-light); border:1.5px solid #FFCDD2; }
-  .feedback.hint-fb { background:#FFF8EC; border:1.5px solid #FFE082; }
-  .fb-title { font-size:14px; font-weight:600; margin-bottom:8px; }
-  .pass .fb-title { color:var(--green-darker); }
-  .fail .fb-title { color:#C62828; }
-  .hint-fb .fb-title { color:#8A6010; }
-  .fb-item { font-size:13px; line-height:1.6; display:flex; gap:6px; align-items:flex-start; margin-bottom:4px; }
-  .fb-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:6px; }
-  .score-bar { display:flex; align-items:center; gap:8px; margin:8px 0; }
-  .score-track { flex:1; height:6px; background:var(--green-light); border-radius:3px; overflow:hidden; }
-  .score-fill { height:100%; background:var(--green); border-radius:3px; transition:width 0.5s; }
-  .score-text { font-size:12px; font-weight:600; color:var(--green-darker); min-width:40px; text-align:right; }
-  .lock-msg { background:#f8f8f8; border-radius:12px; padding:20px; text-align:center; color:var(--text-light); font-size:13px; line-height:1.8; }
-
-  .memory-notice { background:var(--green-lighter); border:1.5px solid var(--green-light); border-radius:10px; padding:10px 14px; font-size:12px; color:var(--green-darker); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  :root{--green:#80C783;--green-light:#C8E9C9;--green-lighter:#EBF6EB;--green-dark:#4E9E52;--green-darker:#2E6B32;--cream:#F6FBF6;--white:#fff;--text:#1C3A1E;--text-mid:#4A7A4D;--text-light:#80A882;--code-bg:#1E3320;--accent:#F7C87A;--red:#E57373;--red-light:#FFEBEE}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);font-size:14px}
+  .header{background:linear-gradient(135deg,#80C783 0%,#4E9E52 60%,#2E6B32 100%);padding:20px 20px 16px;position:relative;overflow:hidden}
+  .header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.08)}
+  .header-top{display:flex;align-items:center;justify-content:space-between}
+  .header-title{font-family:'Playfair Display',serif;font-size:22px;color:white}
+  .header-sub{font-size:12px;color:rgba(255,255,255,0.75);margin-top:3px}
+  .progress-wrap{margin-top:14px}
+  .progress-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.8);margin-bottom:5px}
+  .progress-bar{height:6px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden}
+  .progress-fill{height:100%;background:white;border-radius:3px;transition:width 0.4s}
+  .a-svg{width:44px;height:44px}
+  .animals-h{display:flex;gap:4px}
+  .phase-nav{background:white;border-bottom:2px solid var(--green-light);padding:0 16px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:10}
+  .phase-nav::-webkit-scrollbar{display:none}
+  .phase-btn{font-size:12px;font-weight:500;padding:10px 12px;border:none;background:none;cursor:pointer;color:var(--text-light);border-bottom:2.5px solid transparent;white-space:nowrap;transition:all 0.2s}
+  .phase-btn:hover{color:var(--green-dark)}
+  .phase-btn.active{color:var(--green-dark);border-bottom-color:var(--green)}
+  .content{padding:16px}
+  .phase-panel{display:none}
+  .phase-panel.active{display:block;animation:fadeIn 0.2s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  .api-info-bar{background:var(--green-darker);color:white;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;line-height:1.7}
+  .api-info-bar code{background:rgba(255,255,255,0.15);padding:1px 7px;border-radius:5px;font-family:'DM Mono',monospace;font-size:12px}
+  .memory-notice{background:var(--green-lighter);border:1.5px solid var(--green-light);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--green-darker);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .ex-card{background:white;border:1.5px solid var(--green-light);border-radius:14px;margin-bottom:12px;overflow:hidden;transition:border-color 0.2s}
+  .ex-card.completed{border-color:var(--green)}
+  .ex-header{padding:14px 16px 12px;cursor:pointer;display:flex;align-items:center;gap:10px}
+  .ex-num{width:28px;height:28px;border-radius:8px;background:var(--green-light);color:var(--green-darker);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.3s}
+  .ex-num.done{background:var(--green);color:white}
+  .ex-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--green-darker);flex:1}
+  .ex-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+  .ex-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+  .badge-new{background:#EBF6EB;color:var(--green-dark)}
+  .badge-lock{background:#f0f0f0;color:#aaa}
+  .badge-done{background:var(--green-light);color:var(--green-darker)}
+  .ex-score{font-size:10px;color:var(--green-dark);font-family:'DM Mono',monospace}
+  .chevron{font-size:12px;color:var(--text-light);transition:transform 0.2s}
+  .ex-body{display:none;padding:0 16px 16px;border-top:1px solid var(--green-lighter)}
+  .ex-body.open{display:block}
+  .ex-desc{font-size:13px;color:var(--text-mid);line-height:1.7;margin:12px 0 10px}
+  .ex-section{font-size:11px;font-weight:700;color:var(--green-darker);margin:12px 0 6px;letter-spacing:0.05em;text-transform:uppercase}
+  .info-box{background:var(--green-lighter);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--text-mid);line-height:1.7;margin:8px 0}
+  .info-box code{font-family:'DM Mono',monospace;font-size:12px;background:white;padding:1px 6px;border-radius:5px;color:var(--green-darker)}
+  .info-box b{color:var(--green-darker)}
+  .task-list{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+  .task-item{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;background:var(--green-lighter);border-radius:8px;font-size:13px;color:var(--text);line-height:1.5}
+  .task-num{width:20px;height:20px;border-radius:50%;background:var(--green-light);color:var(--green-darker);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .saved-label{font-size:11px;color:var(--green-dark);font-weight:600;margin:10px 0 4px;display:flex;align-items:center;justify-content:space-between}
+  .toggle-saved{font-size:11px;color:var(--text-light);cursor:pointer;text-decoration:underline}
+  .saved-answer{background:var(--code-bg);border-radius:10px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#C8E9C9;line-height:1.8;margin:4px 0 8px;max-height:140px;overflow-y:auto;white-space:pre-wrap;display:none}
+  .saved-answer.show{display:block}
+  textarea{width:100%;min-height:160px;background:var(--code-bg);color:#C8E9C9;font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;border:none;border-radius:10px;padding:14px 16px;resize:vertical;outline:none;margin-top:10px}
+  textarea::placeholder{color:rgba(200,233,201,0.25)}
+  textarea:focus{box-shadow:0 0 0 2px var(--green)}
+  .btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .btn-check{background:var(--green);color:white;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s}
+  .btn-check:hover{background:var(--green-dark)}
+  .btn-hint{background:none;color:var(--green-dark);border:1.5px solid var(--green-light);border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .btn-hint:hover{background:var(--green-lighter)}
+  .btn-reset{background:none;color:var(--text-light);border:1.5px solid #e0e0e0;border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .btn-clear{background:none;color:#E57373;border:1.5px solid #FFCDD2;border-radius:10px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .feedback{margin-top:12px;border-radius:12px;padding:14px 16px;display:none}
+  .feedback.show{display:block}
+  .feedback.pass{background:#E8F5E8;border:1.5px solid var(--green-light)}
+  .feedback.fail{background:var(--red-light);border:1.5px solid #FFCDD2}
+  .feedback.hint-fb{background:#FFF8EC;border:1.5px solid #FFE082}
+  .fb-title{font-size:14px;font-weight:600;margin-bottom:8px}
+  .pass .fb-title{color:var(--green-darker)}
+  .fail .fb-title{color:#C62828}
+  .hint-fb .fb-title{color:#8A6010}
+  .fb-item{font-size:13px;line-height:1.6;display:flex;gap:6px;align-items:flex-start;margin-bottom:4px}
+  .fb-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+  .score-bar{display:flex;align-items:center;gap:8px;margin:8px 0}
+  .score-track{flex:1;height:6px;background:var(--green-light);border-radius:3px;overflow:hidden}
+  .score-fill{height:100%;background:var(--green);border-radius:3px;transition:width 0.5s}
+  .score-text{font-size:12px;font-weight:600;color:var(--green-darker);min-width:40px;text-align:right}
+  .lock-msg{background:#f8f8f8;border-radius:12px;padding:20px;text-align:center;color:var(--text-light);font-size:13px;line-height:1.8}
+  .phase-header{background:var(--green-darker);color:white;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;line-height:1.7}
+  .phase-header code{background:rgba(255,255,255,0.15);padding:1px 7px;border-radius:5px;font-family:'DM Mono',monospace;font-size:12px}
 </style>
 </head>
 <body>
@@ -112,20 +94,15 @@
   <div class="header-top">
     <div>
       <div class="header-title">QA Exercise Lab 🧪</div>
-      <div class="header-sub">Gorest API · Real API · จำความคืบหน้าได้แล้ว! 🎉</div>
+      <div class="header-sub">Gorest API · Real API · จำความคืบหน้าได้!</div>
     </div>
     <div class="animals-h">
       <svg class="a-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="40" cy="55" rx="18" ry="16" fill="white" opacity="0.9"/>
-        <circle cx="40" cy="34" r="16" fill="white" opacity="0.9"/>
-        <polygon points="27,22 22,10 33,18" fill="white" opacity="0.9"/>
-        <polygon points="53,22 58,10 47,18" fill="white" opacity="0.9"/>
-        <polygon points="28,21 24,13 32,18" fill="#F7BCAB"/>
-        <polygon points="52,21 56,13 48,18" fill="#F7BCAB"/>
-        <ellipse cx="34" cy="32" rx="3" ry="3.5" fill="#2E6B32"/>
-        <ellipse cx="46" cy="32" rx="3" ry="3.5" fill="#2E6B32"/>
-        <circle cx="34" cy="32" r="1.5" fill="#1a1a1a"/>
-        <circle cx="46" cy="32" r="1.5" fill="#1a1a1a"/>
+        <ellipse cx="40" cy="55" rx="18" ry="16" fill="white" opacity="0.9"/><circle cx="40" cy="34" r="16" fill="white" opacity="0.9"/>
+        <polygon points="27,22 22,10 33,18" fill="white" opacity="0.9"/><polygon points="53,22 58,10 47,18" fill="white" opacity="0.9"/>
+        <polygon points="28,21 24,13 32,18" fill="#F7BCAB"/><polygon points="52,21 56,13 48,18" fill="#F7BCAB"/>
+        <ellipse cx="34" cy="32" rx="3" ry="3.5" fill="#2E6B32"/><ellipse cx="46" cy="32" rx="3" ry="3.5" fill="#2E6B32"/>
+        <circle cx="34" cy="32" r="1.5" fill="#1a1a1a"/><circle cx="46" cy="32" r="1.5" fill="#1a1a1a"/>
         <ellipse cx="40" cy="37" rx="2" ry="1.2" fill="#F7BCAB"/>
         <path d="M37 39 Q40 42 43 39" stroke="#ccc" stroke-width="1" fill="none"/>
         <line x1="20" y1="36" x2="33" y2="37" stroke="#aaa" stroke-width="0.8"/>
@@ -133,16 +110,12 @@
         <path d="M56 60 Q70 50 65 40" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.9"/>
       </svg>
       <svg class="a-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="40" cy="56" rx="19" ry="15" fill="#F7C87A" opacity="0.9"/>
-        <circle cx="40" cy="34" r="17" fill="#F7C87A" opacity="0.9"/>
+        <ellipse cx="40" cy="56" rx="19" ry="15" fill="#F7C87A" opacity="0.9"/><circle cx="40" cy="34" r="17" fill="#F7C87A" opacity="0.9"/>
         <ellipse cx="23" cy="30" rx="7" ry="12" fill="#E8A84A" opacity="0.95" transform="rotate(-15 23 30)"/>
         <ellipse cx="57" cy="30" rx="7" ry="12" fill="#E8A84A" opacity="0.95" transform="rotate(15 57 30)"/>
-        <ellipse cx="40" cy="40" rx="9" ry="7" fill="#FDDBA0" opacity="0.9"/>
-        <ellipse cx="40" cy="36" rx="4" ry="2.5" fill="#3a2a1a"/>
-        <circle cx="33" cy="31" r="4" fill="#3a2a1a"/>
-        <circle cx="47" cy="31" r="4" fill="#3a2a1a"/>
-        <circle cx="34" cy="30" r="1.5" fill="white"/>
-        <circle cx="48" cy="30" r="1.5" fill="white"/>
+        <ellipse cx="40" cy="40" rx="9" ry="7" fill="#FDDBA0" opacity="0.9"/><ellipse cx="40" cy="36" rx="4" ry="2.5" fill="#3a2a1a"/>
+        <circle cx="33" cy="31" r="4" fill="#3a2a1a"/><circle cx="47" cy="31" r="4" fill="#3a2a1a"/>
+        <circle cx="34" cy="30" r="1.5" fill="white"/><circle cx="48" cy="30" r="1.5" fill="white"/>
         <path d="M35 42 Q40 47 45 42" stroke="#c08050" stroke-width="1.5" fill="none" stroke-linecap="round"/>
         <ellipse cx="40" cy="46" rx="4" ry="3" fill="#F7BCAB"/>
         <path d="M26 46 Q40 52 54 46" stroke="#80C783" stroke-width="3" fill="none" stroke-linecap="round"/>
@@ -151,7 +124,7 @@
     </div>
   </div>
   <div class="progress-wrap">
-    <div class="progress-label"><span id="prog-label">ความคืบหน้า</span><span id="prog-text">กำลังโหลด...</span></div>
+    <div class="progress-label"><span>ความคืบหน้า</span><span id="prog-text">กำลังโหลด...</span></div>
     <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
   </div>
 </div>
@@ -167,767 +140,306 @@
 </div>
 
 <div class="content">
-
-<div id="phase-a" class="phase-panel active">
-  <div class="memory-notice">💾 ข้อมูลถูกบันทึกใน browser นี้อัตโนมัติ — ปิดเปิดได้ไม่หาย &nbsp;<button class="btn-clear" onclick="clearAll()" style="padding:4px 10px;font-size:11px">ล้างทั้งหมด</button></div>
-  <div class="api-info-bar">
-    🌐 <b>Gorest API</b> — Real API มีฐานข้อมูลจริง ไม่ใช่ mock<br>
-    <b>Base URL:</b> <code>{{baseUrl}}</code> = <code>https://gorest.co.in/public/v2</code><br>
-    <b>Auth:</b> ทุก request ต้องใส่ <code>Authorization: Bearer {{token}}</code>
+  <div id="phase-a" class="phase-panel active">
+    <div class="memory-notice">💾 ข้อมูลถูกบันทึกใน browser อัตโนมัติ — ปิดเปิดได้ไม่หาย &nbsp;<button class="btn-clear" onclick="clearAll()">ล้างทั้งหมด</button></div>
+    <div class="phase-header">🌐 <b>Gorest API</b> — Real API มีฐานข้อมูลจริง<br><b>Base URL:</b> <code>https://gorest.co.in/public/v2</code><br><b>Auth:</b> ทุก request ต้องใส่ <code>Authorization: Bearer {{token}}</code></div>
+    <div id="list-a"></div>
   </div>
-
-  <!-- EX 1 -->
-  <div class="ex-card" id="card-1">
-    <div class="ex-header" onclick="toggleEx('1')">
-      <div class="ex-num" id="num-1">1</div>
-      <div class="ex-title">GET All Users</div>
-      <div class="ex-meta">
-        <span class="ex-badge badge-new" id="badge-1">เริ่มได้เลย</span>
-        <span class="ex-score" id="score-display-1"></span>
-      </div>
-      <span class="chevron" id="chev-1">▼</span>
-    </div>
-    <div class="ex-body" id="body-1">
-      <div class="ex-desc">ดึงรายการ user ทั้งหมด เช็ค array structure และ field ให้ครบ เหมือน GET list ในงานจริง</div>
-      <div class="ex-section">ตั้งค่า Request</div>
-      <div class="info-box">
-        <b>Method:</b> <code>GET</code><br>
-        <b>URL:</b> <code>{{baseUrl}}/users</code><br>
-        <b>Header:</b> <code>Authorization: Bearer {{token}}</code>
-      </div>
-      <div class="ex-section">Response ที่จะได้</div>
-      <div class="response-box">[
-  {
-    "id": 7053240,
-    "name": "Abhimanyu Agarwal",
-    "email": "abhimanyu@example.com",
-    "gender": "male",
-    "status": "active"
-  }, ...
-]</div>
-      <div class="ex-section">โจทย์</div>
-      <div class="task-list">
-        <div class="task-item"><div class="task-num">1</div>เช็ค status 200</div>
-        <div class="task-item"><div class="task-num">2</div>เช็คว่า response เป็น array</div>
-        <div class="task-item"><div class="task-num">3</div>เช็คว่า array ไม่ว่าง</div>
-        <div class="task-item"><div class="task-num">4</div>เช็คว่า object อันแรกมี field <code>id</code>, <code>name</code>, <code>email</code>, <code>gender</code>, <code>status</code></div>
-        <div class="task-item"><div class="task-num">5</div>เช็ค type: <code>id</code> เป็น number, <code>name</code> เป็น string</div>
-        <div class="task-item"><div class="task-num">6</div>เช็คว่า <code>status</code> เป็น "active" หรือ "inactive" เท่านั้น</div>
-        <div class="task-item"><div class="task-num">7</div>เช็คว่า <code>email</code> มี @ อยู่ด้วย</div>
-        <div class="task-item"><div class="task-num">8</div>บันทึก <code>id</code> อันแรกไว้ใน collectionVariables ชื่อ <code>userId</code></div>
-      </div>
-      <div id="saved-wrap-1" style="display:none">
-        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('1')">ซ่อน/แสดง</span></div>
-        <div class="saved-answer" id="saved-ans-1"></div>
-      </div>
-      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
-      <textarea id="ans-1" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
-      <div class="btn-row">
-        <button class="btn-check" onclick="checkEx('1')">✅ ตรวจคำตอบ</button>
-        <button class="btn-hint" onclick="showHint('1')">💡 คำใบ้</button>
-        <button class="btn-reset" onclick="resetEx('1')">↺ ล้าง</button>
-      </div>
-      <div class="feedback" id="fb-1"></div>
-    </div>
+  <div id="phase-b" class="phase-panel">
+    <div id="lock-b" class="lock-msg">🔒 ทำ Phase A ให้ครบก่อนนะครับ<br><br>Phase B: Negative Test — 404, 422, 401</div>
+    <div id="list-b" style="display:none"><div class="phase-header">🎯 <b>Phase B — Negative Test</b><br>Bug ส่วนใหญ่ซ่อนอยู่ในกรณีผิดปกติ ไม่ใช่ happy path</div></div>
   </div>
-
-  <!-- EX 2 -->
-  <div class="ex-card" id="card-2">
-    <div class="ex-header" onclick="toggleEx('2')">
-      <div class="ex-num" id="num-2">2</div>
-      <div class="ex-title">GET Single User</div>
-      <div class="ex-meta">
-        <span class="ex-badge badge-lock" id="badge-2">🔒 ทำ Ex 1 ก่อน</span>
-        <span class="ex-score" id="score-display-2"></span>
-      </div>
-      <span class="chevron" id="chev-2">▼</span>
-    </div>
-    <div class="ex-body" id="body-2">
-      <div class="ex-desc">ดึง user เดียวโดยใช้ userId จาก Ex 1 เช็ค field ทุกตัวละเอียด</div>
-      <div class="ex-section">ตั้งค่า Request</div>
-      <div class="info-box">
-        <b>Method:</b> <code>GET</code><br>
-        <b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br>
-        <b>Header:</b> <code>Authorization: Bearer {{token}}</code>
-      </div>
-      <div class="ex-section">โจทย์</div>
-      <div class="task-list">
-        <div class="task-item"><div class="task-num">1</div>เช็ค status 200</div>
-        <div class="task-item"><div class="task-num">2</div>เช็คว่า <code>id</code> ตรงกับ userId ที่บันทึกไว้</div>
-        <div class="task-item"><div class="task-num">3</div>เช็ค type ทุก field: <code>id</code> number, <code>name</code> string, <code>email</code> string, <code>gender</code> string, <code>status</code> string</div>
-        <div class="task-item"><div class="task-num">4</div>เช็คว่า <code>gender</code> เป็น "male" หรือ "female" เท่านั้น</div>
-        <div class="task-item"><div class="task-num">5</div>เช็คว่า <code>status</code> เป็น "active" หรือ "inactive" เท่านั้น</div>
-        <div class="task-item"><div class="task-num">6</div>เช็ค response time ไม่เกิน 3000ms</div>
-      </div>
-      <div id="saved-wrap-2" style="display:none">
-        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('2')">ซ่อน/แสดง</span></div>
-        <div class="saved-answer" id="saved-ans-2"></div>
-      </div>
-      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
-      <textarea id="ans-2" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
-      <div class="btn-row">
-        <button class="btn-check" onclick="checkEx('2')">✅ ตรวจคำตอบ</button>
-        <button class="btn-hint" onclick="showHint('2')">💡 คำใบ้</button>
-        <button class="btn-reset" onclick="resetEx('2')">↺ ล้าง</button>
-      </div>
-      <div class="feedback" id="fb-2"></div>
-    </div>
+  <div id="phase-c" class="phase-panel">
+    <div id="lock-c" class="lock-msg">🔒 ทำ Phase B ให้ครบก่อนนะครับ<br><br>Phase C: Auth Token Management</div>
+    <div id="list-c" style="display:none"><div class="phase-header">🔐 <b>Phase C — Auth + Token</b><br>เรียนรู้การจัดการ token ใน Postman</div></div>
   </div>
-
-  <!-- EX 3 -->
-  <div class="ex-card" id="card-3">
-    <div class="ex-header" onclick="toggleEx('3')">
-      <div class="ex-num" id="num-3">3</div>
-      <div class="ex-title">POST Create User</div>
-      <div class="ex-meta">
-        <span class="ex-badge badge-lock" id="badge-3">🔒 ทำ Ex 2 ก่อน</span>
-        <span class="ex-score" id="score-display-3"></span>
-      </div>
-      <span class="chevron" id="chev-3">▼</span>
-    </div>
-    <div class="ex-body" id="body-3">
-      <div class="ex-desc">สร้าง user ใหม่ เช็ค response และบันทึก id สำหรับ exercise ถัดไป</div>
-      <div class="ex-section">ตั้งค่า Request</div>
-      <div class="info-box">
-        <b>Method:</b> <code>POST</code><br>
-        <b>URL:</b> <code>{{baseUrl}}/users</code><br>
-        <b>Header:</b> <code>Authorization: Bearer {{token}}</code> + <code>Content-Type: application/json</code><br>
-        <b>Body:</b> <code>{ "name": "QA Tester", "email": "qa_{{$randomInt}}@mail.com", "gender": "female", "status": "active" }</code>
-      </div>
-      <div class="ex-section">โจทย์</div>
-      <div class="task-list">
-        <div class="task-item"><div class="task-num">1</div>เช็ค status 201</div>
-        <div class="task-item"><div class="task-num">2</div>เช็คว่ามี field <code>id</code> และเป็น number</div>
-        <div class="task-item"><div class="task-num">3</div>เช็คว่า <code>name</code> ตรงกับที่ส่งไป "QA Tester"</div>
-        <div class="task-item"><div class="task-num">4</div>เช็คว่า <code>status</code> เป็น "active"</div>
-        <div class="task-item"><div class="task-num">5</div>เช็คว่า <code>gender</code> เป็น "female"</div>
-        <div class="task-item"><div class="task-num">6</div>บันทึก <code>id</code> ใน collectionVariables ชื่อ <code>newUserId</code></div>
-        <div class="task-item"><div class="task-num">7</div>บันทึก <code>email</code> ใน collectionVariables ชื่อ <code>newUserEmail</code></div>
-      </div>
-      <div id="saved-wrap-3" style="display:none">
-        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('3')">ซ่อน/แสดง</span></div>
-        <div class="saved-answer" id="saved-ans-3"></div>
-      </div>
-      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
-      <textarea id="ans-3" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
-      <div class="btn-row">
-        <button class="btn-check" onclick="checkEx('3')">✅ ตรวจคำตอบ</button>
-        <button class="btn-hint" onclick="showHint('3')">💡 คำใบ้</button>
-        <button class="btn-reset" onclick="resetEx('3')">↺ ล้าง</button>
-      </div>
-      <div class="feedback" id="fb-3"></div>
-    </div>
+  <div id="phase-d" class="phase-panel">
+    <div id="lock-d" class="lock-msg">🔒 ทำ Phase C ให้ครบก่อนนะครับ<br><br>Phase D: E2E Flow</div>
+    <div id="list-d" style="display:none"><div class="phase-header">🔗 <b>Phase D — E2E Flow</b><br>เชื่อมหลาย request เข้าด้วยกัน เหมือน flow จริงในงาน</div></div>
   </div>
-
-  <!-- EX 4 -->
-  <div class="ex-card" id="card-4">
-    <div class="ex-header" onclick="toggleEx('4')">
-      <div class="ex-num" id="num-4">4</div>
-      <div class="ex-title">PUT Update User</div>
-      <div class="ex-meta">
-        <span class="ex-badge badge-lock" id="badge-4">🔒 ทำ Ex 3 ก่อน</span>
-        <span class="ex-score" id="score-display-4"></span>
-      </div>
-      <span class="chevron" id="chev-4">▼</span>
-    </div>
-    <div class="ex-body" id="body-4">
-      <div class="ex-desc">แก้ไข user ที่สร้างไว้ใน Ex 3 เช็คว่าค่าเปลี่ยนจริงและ field อื่นไม่หาย</div>
-      <div class="ex-section">ตั้งค่า Request</div>
-      <div class="info-box">
-        <b>Method:</b> <code>PUT</code><br>
-        <b>URL:</b> <code>{{baseUrl}}/users/{{newUserId}}</code><br>
-        <b>Header:</b> <code>Authorization: Bearer {{token}}</code> + <code>Content-Type: application/json</code><br>
-        <b>Body:</b> <code>{ "name": "QA Tester Updated", "status": "inactive" }</code>
-      </div>
-      <div class="ex-section">โจทย์</div>
-      <div class="task-list">
-        <div class="task-item"><div class="task-num">1</div>เช็ค status 200</div>
-        <div class="task-item"><div class="task-num">2</div>เช็คว่า <code>name</code> เปลี่ยนเป็น "QA Tester Updated"</div>
-        <div class="task-item"><div class="task-num">3</div>เช็คว่า <code>status</code> เปลี่ยนเป็น "inactive"</div>
-        <div class="task-item"><div class="task-num">4</div>เช็คว่า <code>id</code> ยังตรงกับ newUserId</div>
-        <div class="task-item"><div class="task-num">5</div>เช็คว่า <code>email</code> ยังตรงกับ newUserEmail</div>
-        <div class="task-item"><div class="task-num">6</div>เช็ค response time ไม่เกิน 3000ms</div>
-      </div>
-      <div id="saved-wrap-4" style="display:none">
-        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('4')">ซ่อน/แสดง</span></div>
-        <div class="saved-answer" id="saved-ans-4"></div>
-      </div>
-      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
-      <textarea id="ans-4" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)"></textarea>
-      <div class="btn-row">
-        <button class="btn-check" onclick="checkEx('4')">✅ ตรวจคำตอบ</button>
-        <button class="btn-hint" onclick="showHint('4')">💡 คำใบ้</button>
-        <button class="btn-reset" onclick="resetEx('4')">↺ ล้าง</button>
-      </div>
-      <div class="feedback" id="fb-4"></div>
-    </div>
+  <div id="phase-e" class="phase-panel">
+    <div id="lock-e" class="lock-msg">🔒 ทำ Phase D ให้ครบก่อนนะครับ<br><br>Phase E: Environment</div>
+    <div id="list-e" style="display:none"><div class="phase-header">⚙️ <b>Phase E — Environment Variables</b><br>จัดการ baseUrl และ token ให้ใช้งานได้หลาย environment</div></div>
   </div>
-
-  <!-- EX 5 -->
-  <div class="ex-card" id="card-5">
-    <div class="ex-header" onclick="toggleEx('5')">
-      <div class="ex-num" id="num-5">5</div>
-      <div class="ex-title">DELETE User + Verify</div>
-      <div class="ex-meta">
-        <span class="ex-badge badge-lock" id="badge-5">🔒 ทำ Ex 4 ก่อน</span>
-        <span class="ex-score" id="score-display-5"></span>
-      </div>
-      <span class="chevron" id="chev-5">▼</span>
-    </div>
-    <div class="ex-body" id="body-5">
-      <div class="ex-desc">ลบ user แล้ว GET ซ้ำยืนยันว่าหายจริง — verify deletion ที่ QA ต้องทำเสมอ</div>
-      <div class="ex-section">ตั้งค่า Request (2 requests)</div>
-      <div class="info-box">
-        <b>Request 1 DELETE:</b> <code>DELETE {{baseUrl}}/users/{{newUserId}}</code><br>
-        <b>Request 2 GET (verify):</b> <code>GET {{baseUrl}}/users/{{newUserId}}</code> → คาดว่าได้ 404
-      </div>
-      <div class="ex-section">โจทย์</div>
-      <div class="task-list">
-        <div class="task-item"><div class="task-num">1</div>Request 1: เช็ค status 204</div>
-        <div class="task-item"><div class="task-num">2</div>Request 2: เช็คว่าได้ 404</div>
-        <div class="task-item"><div class="task-num">3</div>Request 2: เช็คว่า response มี field <code>message</code></div>
-      </div>
-      <div id="saved-wrap-5" style="display:none">
-        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('5')">ซ่อน/แสดง</span></div>
-        <div class="saved-answer" id="saved-ans-5"></div>
-      </div>
-      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script (Request 1 DELETE)</label>
-      <textarea id="ans-5" placeholder="pm.test('DELETE สำเร็จ', function () {&#10;  pm.response.to.have.status(204)&#10;})"></textarea>
-      <div class="btn-row">
-        <button class="btn-check" onclick="checkEx('5')">✅ ตรวจคำตอบ</button>
-        <button class="btn-hint" onclick="showHint('5')">💡 คำใบ้</button>
-        <button class="btn-reset" onclick="resetEx('5')">↺ ล้าง</button>
-      </div>
-      <div class="feedback" id="fb-5"></div>
-    </div>
+  <div id="phase-f" class="phase-panel">
+    <div id="lock-f" class="lock-msg">🔒 ทำ Phase E ให้ครบก่อนนะครับ<br><br>Phase F: Data-driven + CSV</div>
+    <div id="list-f" style="display:none"><div class="phase-header">📊 <b>Phase F — Data-driven Testing</b><br>รัน test หลาย case จาก CSV file ด้วย Newman</div></div>
   </div>
-</div>
-
-<div id="phase-b" class="phase-panel"><div class="lock-msg">🔒 ทำ Phase A ให้ครบก่อนนะครับ<br><br>Phase B: Negative Test — 404, 422, 401</div></div>
-<div id="phase-c" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase B<br><br>Phase C: Auth Token Management</div></div>
-<div id="phase-d" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase C<br><br>Phase D: E2E Flow</div></div>
-<div id="phase-e" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase D<br><br>Phase E: Environment</div></div>
-<div id="phase-f" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase E<br><br>Phase F: Data-driven + CSV</div></div>
-<div id="phase-g" class="phase-panel"><div class="lock-msg">🔒 Unlock หลังจบ Phase F<br><br>Phase G: Newman CLI + GitHub Portfolio</div></div>
-
+  <div id="phase-g" class="phase-panel">
+    <div id="lock-g" class="lock-msg">🔒 ทำ Phase F ให้ครบก่อนนะครับ<br><br>Phase G: Newman CLI + GitHub Portfolio</div>
+    <div id="list-g" style="display:none"><div class="phase-header">🚀 <b>Phase G — Newman CLI + GitHub Portfolio</b><br>รัน automation จริง + push portfolio ขึ้น GitHub</div></div>
+  </div>
 </div>
 
 <script>
-const LS_KEY = 'qa_lab_v1'
-
-const hints = {
-  '1': ["const body = pm.response.json() ก่อนเสมอ", "body เป็น array → pm.expect(body).to.be.an('array')", "เช็ค status: pm.expect(body[0].status).to.be.oneOf(['active','inactive'])", "บันทึก: pm.collectionVariables.set('userId', body[0].id)"],
-  '2': ["pm.expect(body.id).to.equal(pm.collectionVariables.get('userId'))", "pm.expect(body.gender).to.be.oneOf(['male','female'])", "pm.expect(pm.response.responseTime).to.be.below(3000)"],
-  '3': ["status 201 สำหรับ POST ที่สร้างสำเร็จ", "pm.expect(body.name).to.equal('QA Tester')", "บันทึก 2 ค่า: set('newUserId', body.id) และ set('newUserEmail', body.email)"],
-  '4': ["pm.expect(body.name).to.equal('QA Tester Updated')", "pm.expect(body.email).to.equal(pm.collectionVariables.get('newUserEmail'))", "pm.expect(body.id).to.equal(pm.collectionVariables.get('newUserId'))"],
-  '5': ["DELETE return 204 No Content — ไม่มี body", "pm.response.to.have.status(204)", "Request 2: pm.response.to.have.status(404)"]
-}
-
-// flexible check — anyOf คือ array ของ keyword ที่ยอมรับ ถ้าเจออันใดอันนึงก็ผ่าน
-const checkMap = {
-  '1': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(200)","have.status(200)"], label:"เช็ค status 200"},
-    {anyOf:["be.an('array')","be.an(\"array\")"], label:"เช็คว่าเป็น array"},
-    {anyOf:["above(0)","length).to.be.above","length > 0"], label:"เช็คว่า array ไม่ว่าง"},
-    {anyOf:["property('id')","property(\"id\")","have.all.keys"], label:"เช็คว่ามี field id"},
-    {anyOf:["be.a('number')","be.a(\"number\")"], label:"เช็ค type เป็น number"},
-    {anyOf:["be.a('string')","be.a(\"string\")"], label:"เช็ค type เป็น string"},
-    {anyOf:["oneOf"], label:"เช็ค status active/inactive"},
-    {anyOf:["include('@')","include(\"@\")"], label:"เช็ค email มี @"},
-    {anyOf:["collectionVariables.set"], label:"บันทึก userId"}
-  ],
-  '2': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(200)","have.status(200)"], label:"เช็ค status 200"},
-    {anyOf:["collectionVariables.get","collectionVariables.get('userId')"], label:"เช็ค id ตรงกับที่บันทึกไว้"},
-    {anyOf:["be.a('number')","be.a(\"number\")"], label:"เช็ค type number"},
-    {anyOf:["be.a('string')","be.a(\"string\")"], label:"เช็ค type string"},
-    {anyOf:["oneOf(['male','female'])","oneOf([\"male\"","gender"], label:"เช็ค gender"},
-    {anyOf:["below(3000)","below(2000)"], label:"เช็ค response time"}
-  ],
-  '3': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(201)","have.status(201)"], label:"เช็ค status 201"},
-    {anyOf:["property('id')","property(\"id\")","have.all.keys"], label:"เช็คว่ามี field id"},
-    {anyOf:["be.a('number')","be.a(\"number\")"], label:"เช็ค id เป็น number"},
-    {anyOf:["QA Tester","reqBody.name","req.name","request.body"], label:"เช็ค name ตรง"},
-    {anyOf:["active","reqBody.status","req.status"], label:"เช็ค status active"},
-    {anyOf:["female","reqBody.gender","req.gender"], label:"เช็ค gender female"},
-    {anyOf:["set('newUserId'","set(\"newUserId\""], label:"บันทึก newUserId"},
-    {anyOf:["set('newUserEmail'","set(\"newUserEmail\""], label:"บันทึก newUserEmail"}
-  ],
-  '4': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(200)","have.status(200)"], label:"เช็ค status 200"},
-    {anyOf:["QA Tester Updated","reqBody.name","req.name"], label:"เช็ค name เปลี่ยนแล้ว"},
-    {anyOf:["inactive","reqBody.status","req.status"], label:"เช็ค status inactive"},
-    {anyOf:["get('newUserId')","get(\"newUserId\")","newUserId"], label:"เช็ค id ตรงกับ newUserId"},
-    {anyOf:["get('newUserEmail')","get(\"newUserEmail\")","newUserEmail"], label:"เช็ค email ยังตรง"},
-    {anyOf:["below(3000)","below(2000)"], label:"เช็ค response time"}
-  ],
-  '5': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(204)","have.status(204)"], label:"เช็ค status 204 สำหรับ DELETE"}
-  ]
-}
-
-// ===== localStorage helpers =====
-function save(data) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(data)) } catch(e) {}
-}
-
-function load() {
-  try {
-    const raw = localStorage.getItem(LS_KEY)
-    return raw ? JSON.parse(raw) : {}
-  } catch(e) { return {} }
-}
-
-function clearAll() {
-  if (!confirm('ล้างข้อมูลทั้งหมดใช่ไหมครับ? ไม่สามารถกู้คืนได้')) return
-  localStorage.removeItem(LS_KEY)
-  location.reload()
-}
-
+const LS_KEY = 'qa_lab_v3'
 let progress = {}
 
-function unlockPhaseC() {
-  const pc = document.getElementById('phase-c')
-  if (pc.querySelector('.ex-card')) return
-  pc.innerHTML = `
-  <div class='api-info-bar'>🔐 <b>Phase C — Auth + Token</b><br>เรียนรู้การจัดการ token ใน Postman — ใช้ในงานจริงทุกวัน</div>
-  <div class='ex-card'>
-    <div class='ex-header' onclick='this.nextElementSibling.classList.toggle("open")'>
-      <div class='ex-num'>10</div><div class='ex-title'>จัดการ Token ใน Environment</div>
-      <div class='ex-meta'><span class='ex-badge badge-new'>เริ่มได้เลย</span></div><span class='chevron'>▼</span>
-    </div>
-    <div class='ex-body'>
-      <div class='ex-desc'>ฝึกดึง token จาก environment มาใช้ใน collectionVariables และเช็คว่า token ยังใช้งานได้อยู่</div>
-      <div class='ex-section'>ตั้งค่า Request</div>
-      <div class='info-box'><b>Method:</b> <code>GET</code><br><b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code></div>
-      <div class='ex-section'>โจทย์</div>
-      <div class='task-list'>
-        <div class='task-item'><div class='task-num'>1</div>เช็ค status 200 — ยืนยันว่า token ยังใช้งานได้</div>
-        <div class='task-item'><div class='task-num'>2</div>บันทึก token จาก environment ไว้ใน collectionVariables ชื่อ <code>authToken</code></div>
-        <div class='task-item'><div class='task-num'>3</div>เช็คว่า authToken ไม่เป็น undefined</div>
-        <div class='task-item'><div class='task-num'>4</div>console.log authToken ดูว่ามีค่า</div>
-      </div>
-      <label style='font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block'>✍️ เขียน Test Script</label>
-      <textarea id='ans-c-10' placeholder='pm.test(...)&#10;pm.collectionVariables.set(...)'></textarea>
-      <div class='btn-row'>
-        <button class='btn-check' onclick='checkExC("10")'>✅ ตรวจคำตอบ</button>
-        <button class='btn-hint' onclick='showHintC("10")'>💡 คำใบ้</button>
-        <button class='btn-reset' onclick='document.getElementById("ans-c-10").value="";document.getElementById("fb-c-10").className="feedback"'>↺ ล้าง</button>
-      </div>
-      <div class='feedback' id='fb-c-10'></div>
-    </div>
-  </div>
-  <div class='ex-card'>
-    <div class='ex-header' onclick='this.nextElementSibling.classList.toggle("open")'>
-      <div class='ex-num'>11</div><div class='ex-title'>Pre-request Script — Set Token อัตโนมัติ</div>
-      <div class='ex-meta'><span class='ex-badge badge-lock' id='badge-c-11'>🔒 ทำ Ex 10 ก่อน</span></div><span class='chevron'>▼</span>
-    </div>
-    <div class='ex-body'>
-      <div class='ex-desc'>เขียน Pre-request Script ให้ set Authorization header อัตโนมัติทุก request ไม่ต้องใส่ด้วยมือ</div>
-      <div class='ex-section'>ตั้งค่า</div>
-      <div class='info-box'><b>ไปที่ tab Pre-request Script</b> ของ request ใดก็ได้<br>แล้วเขียน script ให้ set token อัตโนมัติ</div>
-      <div class='ex-section'>โจทย์</div>
-      <div class='task-list'>
-        <div class='task-item'><div class='task-num'>1</div>ดึง token จาก environment ใน Pre-request Script</div>
-        <div class='task-item'><div class='task-num'>2</div>Set Authorization header อัตโนมัติด้วย Bearer token</div>
-        <div class='task-item'><div class='task-num'>3</div>ยิง request แล้วเช็คว่ายังได้ 200 อยู่</div>
-      </div>
-      <label style='font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block'>✍️ เขียน Pre-request Script</label>
-      <textarea id='ans-c-11' placeholder='const token = pm.environment.get("token")&#10;pm.request.headers.add({...})'></textarea>
-      <div class='btn-row'>
-        <button class='btn-check' onclick='checkExC("11")'>✅ ตรวจคำตอบ</button>
-        <button class='btn-hint' onclick='showHintC("11")'>💡 คำใบ้</button>
-        <button class='btn-reset' onclick='document.getElementById("ans-c-11").value="";document.getElementById("fb-c-11").className="feedback"'>↺ ล้าง</button>
-      </div>
-      <div class='feedback' id='fb-c-11'></div>
-    </div>
-  </div>`
-
-  const checkMapC = {
-    '10': [
-      {anyOf:['pm.test'], label:'มี pm.test()'},
-      {anyOf:['status(200)','have.status(200)'], label:'เช็ค status 200'},
-      {anyOf:['collectionVariables.set'], label:'บันทึก authToken'},
-      {anyOf:['authToken'], label:'ใช้ชื่อ authToken'},
-      {anyOf:['console.log'], label:'console.log ดู token'}
-    ],
-    '11': [
-      {anyOf:['environment.get'], label:'ดึง token จาก environment'},
-      {anyOf:['headers.add','Authorization'], label:'Set Authorization header'},
-      {anyOf:['Bearer'], label:'ใส่ Bearer ด้วย'}
-    ]
-  }
-
-  const hintsC = {
-    '10': ['pm.collectionVariables.set("authToken", pm.environment.get("token"))', 'pm.expect(pm.collectionVariables.get("authToken")).to.not.be.undefined', 'console.log("token:", pm.collectionVariables.get("authToken"))'],
-    '11': ['const token = pm.environment.get("token")', 'pm.request.headers.add({ key: "Authorization", value:  })']
-  }
-
-  window.checkExC = function(n) {
-    const ta = document.getElementById('ans-c-' + n)
-    const fb = document.getElementById('fb-c-' + n)
-    const ans = ta.value.trim()
-    if (ans.length < 10) { fb.className = 'feedback fail show'; fb.innerHTML = '<div class="fb-title">⚠️ ยังไม่ได้เขียนครับ</div>'; return }
-    const items = checkMapC[n] || []
-    const itemPassed = i => i.anyOf ? i.anyOf.some(k => ans.includes(k)) : ans.includes(i.key)
-    const passed = items.filter(i => itemPassed(i))
-    const failed = items.filter(i => !itemPassed(i))
-    const score = Math.round(passed.length / items.length * 100)
-    const isPass = score >= 70
-    let html = '<div class="fb-title">' + (isPass ? '🎉 ผ่านแล้วครับ!' : '📝 ใกล้แล้ว') + ' (' + score + '%)</div>'
-    html += '<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:' + score + '%"></div></div><div class="score-text">' + passed.length + '/' + items.length + '</div></div>'
-    if (passed.length) { html += '<div class="fb-item" style="color:var(--green-darker);font-weight:600">✅ ถูกแล้ว</div>'; passed.forEach(p => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--green)"></div>' + p.label + '</div>') }
-    if (failed.length) { html += '<div class="fb-item" style="color:#C62828;font-weight:600;margin-top:6px">❌ ยังขาด</div>'; failed.forEach(f => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--red)"></div>' + f.label + '</div>') }
-    fb.className = 'feedback ' + (isPass ? 'pass' : 'fail') + ' show'
-    fb.innerHTML = html
-    if (isPass) {
-      if (!progress[n]) progress[n] = {}
-      progress[n].passed = true; progress[n].score = score; progress[n].lastScript = ans
-      save(progress)
-      const done = Object.keys(progress).filter(k => progress[k]?.passed).length
-      updateBar(done)
-      if (n === '10') { const nb = document.getElementById('badge-c-11'); if (nb) { nb.className = 'ex-badge badge-new'; nb.textContent = 'เริ่มได้เลย' } }
-    }
-  }
-
-  window.showHintC = function(n) {
-    const fb = document.getElementById('fb-c-' + n)
-    const h = hintsC[n] || []
-    let html = '<div class="fb-title">💡 คำใบ้</div>'
-    h.forEach(t => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--accent)"></div>' + t + '</div>')
-    fb.className = 'feedback hint-fb show'; fb.innerHTML = html
-  }
-}
-
-init() {
-  progress = load()
-  let done = 0
-  for (let n = 1; n <= 5; n++) {
-    const key = String(n)
-    const d = progress[key]
-    if (d?.passed) {
-      done++
-      markPassed(key, false)
-      if (d.score != null) document.getElementById('score-display-' + key).textContent = d.score + '%'
-    }
-    if (d?.lastScript) {
-      document.getElementById('ans-' + key).value = d.lastScript
-      document.getElementById('saved-ans-' + key).textContent = d.lastScript
-      document.getElementById('saved-wrap-' + key).style.display = 'block'
-    }
-    // unlock next
-    if (n > 1) {
-      const prev = String(n - 1)
-      if (progress[prev]?.passed) {
-        const b = document.getElementById('badge-' + key)
-        if (b && b.classList.contains('badge-lock')) { b.className = 'ex-badge badge-new'; b.textContent = 'เริ่มได้เลย' }
-      }
-    }
-  }
-  if (progress['5']?.passed) unlockPhaseB()
-  const phaseBDone = ['6','7','8','9'].every(k => progress[k]?.passed)
-  if (phaseBDone) setTimeout(() => unlockPhaseC(), 100)
-  updateBar(done)
-}
-
-function updateBar(done) {
-  const total = 17
-  document.getElementById('prog-text').textContent = done + ' / ' + total + ' exercises'
-  document.getElementById('prog-fill').style.width = (done / total * 100) + '%'
-}
-
-function toggleEx(n) {
-  const body = document.getElementById('body-' + n)
-  const chev = document.getElementById('chev-' + n)
-  const isOpen = body.classList.contains('open')
-  document.querySelectorAll('.ex-body').forEach(b => b.classList.remove('open'))
-  document.querySelectorAll('.chevron').forEach(c => c.style.transform = '')
-  if (!isOpen) { body.classList.add('open'); chev.style.transform = 'rotate(180deg)' }
-}
-
-function markPassed(n, animate) {
-  const numEl = document.getElementById('num-' + n)
-  numEl.classList.add('done'); numEl.textContent = '✓'
-  document.getElementById('card-' + n).classList.add('completed')
-  const badge = document.getElementById('badge-' + n)
-  badge.className = 'ex-badge badge-done'; badge.textContent = '✅ ผ่านแล้ว'
-  const next = String(parseInt(n) + 1)
-  const nb = document.getElementById('badge-' + next)
-  if (nb && nb.classList.contains('badge-lock')) { nb.className = 'ex-badge badge-new'; nb.textContent = 'เริ่มได้เลย' }
-}
-
-function checkEx(n) {
-  const ans = document.getElementById('ans-' + n).value.trim()
-  const fb = document.getElementById('fb-' + n)
-  if (ans.length < 20) {
-    fb.className = 'feedback fail show'
-    fb.innerHTML = '<div class="fb-title">⚠️ ยังไม่ได้เขียนครับ</div>'
-    return
-  }
-  const items = checkMap[n] || []
-  const itemPassed = i => i.anyOf ? i.anyOf.some(k => ans.includes(k)) : ans.includes(i.key)
-  const passed = items.filter(i => itemPassed(i))
-  const failed = items.filter(i => !itemPassed(i))
-  const score = Math.round(passed.length / items.length * 100)
-  const isPass = score >= 70
-  let html = '<div class="fb-title">' + (isPass ? '🎉 ผ่านแล้วครับ!' : '📝 ใกล้แล้ว ปรับเพิ่มอีกนิด') + ' (' + score + '%)</div>'
-  html += '<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:' + score + '%"></div></div><div class="score-text">' + passed.length + '/' + items.length + '</div></div>'
-  if (passed.length) {
-    html += '<div class="fb-item" style="color:var(--green-darker);font-weight:600;margin:4px 0">✅ ถูกแล้ว</div>'
-    passed.forEach(p => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--green)"></div>' + p.label + '</div>')
-  }
-  if (failed.length) {
-    html += '<div class="fb-item" style="color:#C62828;font-weight:600;margin:8px 0 4px">❌ ยังขาด</div>'
-    failed.forEach(f => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--red)"></div>' + f.label + '</div>')
-  }
-  fb.className = 'feedback ' + (isPass ? 'pass' : 'fail') + ' show'
-  fb.innerHTML = html
-
-  // save to localStorage
-  if (!progress[n]) progress[n] = {}
-  progress[n].lastScript = ans
-  progress[n].score = score
-  progress[n].lastAttempt = new Date().toLocaleString('th-TH')
-  if (isPass && !progress[n].passed) {
-    progress[n].passed = true
-    progress[n].passedAt = new Date().toLocaleString('th-TH')
-    markPassed(n, true)
-    if (n === '5') unlockPhaseB()
-  }
-  save(progress)
-
-  // show saved
-  document.getElementById('saved-ans-' + n).textContent = ans
-  document.getElementById('saved-wrap-' + n).style.display = 'block'
-
-  const done = Object.keys(progress).filter(k => progress[k]?.passed).length
-  updateBar(done)
-  if (isPass) document.getElementById('score-display-' + n).textContent = score + '%'
-}
-
-function showHint(n) {
-  const fb = document.getElementById('fb-' + n)
-  const h = hints[n] || []
-  let html = '<div class="fb-title">💡 คำใบ้</div>'
-  h.forEach(t => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--accent)"></div>' + t + '</div>')
-  fb.className = 'feedback hint-fb show'; fb.innerHTML = html
-  if (!progress[n]) progress[n] = {}
-  if (!progress[n].hints) progress[n].hints = 0
-  progress[n].hints++
-  save(progress)
-}
-
-function resetEx(n) {
-  document.getElementById('ans-' + n).value = ''
-  document.getElementById('fb-' + n).className = 'feedback'
-  document.getElementById('fb-' + n).innerHTML = ''
-}
-
-function toggleSaved(n) {
-  document.getElementById('saved-ans-' + n).classList.toggle('show')
-}
-
-function showPhase(p, btn) {
-  document.querySelectorAll('.phase-panel').forEach(el => el.classList.remove('active'))
-  document.querySelectorAll('.phase-btn').forEach(el => el.classList.remove('active'))
-  document.getElementById('phase-' + p).classList.add('active'); btn.classList.add('active')
-}
-
-// Phase B check maps
-const checkMapB = {
-  '6': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(404)","have.status(404)"], label:"เช็ค status 404"},
-    {anyOf:["property('message')","property(\"message\")"], label:"เช็คว่ามี field message"},
-    {anyOf:["be.a('string')","be.a(\"string\")"], label:"เช็ค message เป็น string"}
+// ===== EXERCISE DATA =====
+const DATA = {
+  a:[
+    {id:'1',title:'GET All Users',desc:'ดึงรายการ user ทั้งหมด เช็ค array structure และ field ให้ครบ เหมือน GET list ในงานจริง',
+     req:'<b>Method:</b> <code>GET</code><br><b>URL:</b> <code>{{baseUrl}}/users</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code>',
+     tasks:['เช็ค status 200','เช็คว่า response เป็น array','เช็คว่า array ไม่ว่าง','เช็คว่า object อันแรกมี field id, name, email, gender, status','เช็ค type: id เป็น number, name เป็น string','เช็คว่า status เป็น "active" หรือ "inactive" เท่านั้น','เช็คว่า email มี @ อยู่ด้วย','บันทึก id อันแรกไว้ใน collectionVariables ชื่อ userId'],
+     hints:["const body = pm.response.json() ก่อนเสมอ","pm.expect(body).to.be.an('array')","pm.expect(body[0].status).to.be.oneOf(['active','inactive'])","pm.collectionVariables.set('userId', body[0].id)"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(200)','have.status(200)'],l:'เช็ค status 200'},{a:["be.an('array')"],l:'เช็คว่าเป็น array'},{a:['above(0)','length > 0'],l:'เช็คว่า array ไม่ว่าง'},{a:["property('id')",'have.all.keys'],l:'เช็คว่ามี field id'},{a:["be.a('number')"],l:'เช็ค type number'},{a:["be.a('string')"],l:'เช็ค type string'},{a:['oneOf'],l:'เช็ค status active/inactive'},{a:["include('@')"],l:'เช็ค email มี @'},{a:['collectionVariables.set'],l:'บันทึก userId'}]},
+    {id:'2',title:'GET Single User',desc:'ดึง user เดียวโดยใช้ userId จาก Ex 1 เช็ค field ทุกตัวละเอียด',
+     req:'<b>Method:</b> <code>GET</code><br><b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code>',
+     tasks:['เช็ค status 200','เช็คว่า id ตรงกับ userId ที่บันทึกไว้','เช็ค type ทุก field: id number, name string, email string, gender string, status string','เช็คว่า gender เป็น "male" หรือ "female" เท่านั้น','เช็คว่า status เป็น "active" หรือ "inactive" เท่านั้น','เช็ค response time ไม่เกิน 3000ms'],
+     hints:["pm.expect(body.id).to.equal(pm.collectionVariables.get('userId'))","pm.expect(body.gender).to.be.oneOf(['male','female'])","pm.expect(pm.response.responseTime).to.be.below(3000)"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(200)','have.status(200)'],l:'เช็ค status 200'},{a:['collectionVariables.get'],l:'เช็ค id ตรงกับที่บันทึกไว้'},{a:["be.a('number')"],l:'เช็ค type number'},{a:["be.a('string')"],l:'เช็ค type string'},{a:["oneOf(['male','female'])"],l:'เช็ค gender'},{a:['below(3000)','below(2000)'],l:'เช็ค response time'}]},
+    {id:'3',title:'POST Create User',desc:'สร้าง user ใหม่ เช็ค response และบันทึก id สำหรับ exercise ถัดไป',
+     req:'<b>Method:</b> <code>POST</code><br><b>URL:</b> <code>{{baseUrl}}/users</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code> + <code>Content-Type: application/json</code><br><b>Body:</b> <code>{"name":"QA Tester","email":"qa_{{$randomInt}}@mail.com","gender":"female","status":"active"}</code>',
+     tasks:['เช็ค status 201','เช็คว่ามี field id และเป็น number','เช็คว่า name ตรงกับที่ส่งไป','เช็คว่า status เป็น "active"','เช็คว่า gender เป็น "female"','บันทึก id ใน collectionVariables ชื่อ newUserId','บันทึก email ใน collectionVariables ชื่อ newUserEmail'],
+     hints:["status 201 สำหรับ POST ที่สร้างสำเร็จ","pm.expect(body.name).to.equal('QA Tester') หรือ reqBody.name","pm.collectionVariables.set('newUserId', body.id)"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(201)','have.status(201)'],l:'เช็ค status 201'},{a:["property('id')",'have.all.keys'],l:'เช็คว่ามี field id'},{a:["be.a('number')"],l:'เช็ค id เป็น number'},{a:['QA Tester','reqBody.name','req.name'],l:'เช็ค name ตรง'},{a:['active','reqBody.status'],l:'เช็ค status active'},{a:['female','reqBody.gender'],l:'เช็ค gender female'},{a:["set('newUserId",'set("newUserId'],l:'บันทึก newUserId'},{a:["set('newUserEmail",'set("newUserEmail'],l:'บันทึก newUserEmail'}]},
+    {id:'4',title:'PUT Update User',desc:'แก้ไข user ที่สร้างไว้ใน Ex 3 เช็คว่าค่าเปลี่ยนจริงและ field อื่นไม่หาย',
+     req:'<b>Method:</b> <code>PUT</code><br><b>URL:</b> <code>{{baseUrl}}/users/{{newUserId}}</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code> + <code>Content-Type: application/json</code><br><b>Body:</b> <code>{"name":"QA Tester Updated","status":"inactive"}</code>',
+     tasks:['เช็ค status 200','เช็คว่า name เปลี่ยนเป็น "QA Tester Updated"','เช็คว่า status เปลี่ยนเป็น "inactive"','เช็คว่า id ยังตรงกับ newUserId','เช็คว่า email ยังตรงกับ newUserEmail','เช็ค response time ไม่เกิน 3000ms'],
+     hints:["pm.expect(body.name).to.equal('QA Tester Updated')","pm.expect(body.email).to.equal(pm.collectionVariables.get('newUserEmail'))","pm.expect(body.id).to.equal(pm.collectionVariables.get('newUserId'))"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(200)','have.status(200)'],l:'เช็ค status 200'},{a:['QA Tester Updated','reqBody.name'],l:'เช็ค name เปลี่ยนแล้ว'},{a:['inactive','reqBody.status'],l:'เช็ค status inactive'},{a:["get('newUserId')",'get("newUserId")'],l:'เช็ค id ตรงกับ newUserId'},{a:["get('newUserEmail')",'get("newUserEmail")'],l:'เช็ค email ยังตรง'},{a:['below(3000)','below(2000)'],l:'เช็ค response time'}]},
+    {id:'5',title:'DELETE User + Verify',desc:'ลบ user แล้ว GET ซ้ำยืนยันว่าหายจริง — verify deletion ที่ QA ต้องทำเสมอ',
+     req:'<b>Request 1 DELETE:</b> <code>DELETE {{baseUrl}}/users/{{newUserId}}</code><br><b>Request 2 GET (verify):</b> <code>GET {{baseUrl}}/users/{{newUserId}}</code> → คาดว่าได้ 404',
+     tasks:['Request 1: เช็ค status 204','Request 2: เช็คว่าได้ 404','Request 2: เช็คว่า response มี field message'],
+     hints:["DELETE return 204 No Content — ไม่มี body","pm.response.to.have.status(204)","Request 2: pm.response.to.have.status(404)"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(204)','have.status(204)'],l:'เช็ค status 204'}]}
   ],
-  '7': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(422)","have.status(422)"], label:"เช็ค status 422"},
-    {anyOf:["be.an('array')","be.an(\"array\")"], label:"เช็ค response เป็น array"},
-    {anyOf:["property('field')","property(\"field\")"], label:"เช็คว่า error มี field 'field'"},
-    {anyOf:["property('message')","property(\"message\")"], label:"เช็คว่า error มี field 'message'"}
+  b:[
+    {id:'6',title:'GET User ที่ไม่มีอยู่ → 404',desc:'ทดสอบว่า API ตอบ 404 ถูกต้องเมื่อ user ไม่มีอยู่ในระบบ',
+     req:'<b>Method:</b> <code>GET</code><br><b>URL:</b> <code>{{baseUrl}}/users/0000001</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code>',
+     tasks:['เช็ค status 404','เช็คว่า response มี field message','เช็คว่า message เป็น string'],
+     hints:["pm.response.to.have.status(404)","pm.expect(body).to.have.property('message')","pm.expect(body.message).to.be.a('string')"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(404)','have.status(404)'],l:'เช็ค status 404'},{a:["property('message')"],l:'เช็คว่ามี field message'},{a:["be.a('string')"],l:'เช็ค message เป็น string'}]},
+    {id:'7',title:'POST User ไม่ครบ field → 422',desc:'ส่ง body ไม่ครบ required field เช็คว่า API ตอบ 422 พร้อม error detail',
+     req:'<b>Method:</b> <code>POST</code><br><b>URL:</b> <code>{{baseUrl}}/users</code><br><b>Body (ขาด email):</b> <code>{"name":"Test","gender":"male","status":"active"}</code>',
+     tasks:['เช็ค status 422','เช็คว่า response เป็น array','เช็คว่า error อันแรกมี field field และ message'],
+     hints:["Gorest ส่ง error เป็น array → pm.expect(body).to.be.an('array')","pm.expect(body[0]).to.have.property('field')","pm.expect(body[0]).to.have.property('message')"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(422)','have.status(422)'],l:'เช็ค status 422'},{a:["be.an('array')"],l:'เช็ค response เป็น array'},{a:["property('field')"],l:"เช็คว่า error มี field 'field'"},{a:["property('message')"],l:"เช็คว่า error มี field 'message'"}]},
+    {id:'8',title:'DELETE โดยไม่มี token → 401',desc:'ลบ Authorization header ออก แล้วเช็คว่า API ปฏิเสธ request',
+     req:'<b>Method:</b> <code>DELETE</code><br><b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br><b>ไม่ต้องใส่ Authorization header</b>',
+     tasks:['เช็ค status 401','เช็คว่า response มี field message'],
+     hints:["ลบ Authorization header ออกจาก request","pm.response.to.have.status(401)","pm.expect(body).to.have.property('message')"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(401)','have.status(401)'],l:'เช็ค status 401'},{a:["property('message')"],l:'เช็คว่ามี field message'}]},
+    {id:'9',title:'POST ส่ง type ผิด → 422',desc:'ส่ง gender เป็นตัวเลขแทน string เช็คว่า API จัดการ validation error ได้',
+     req:'<b>Method:</b> <code>POST</code><br><b>URL:</b> <code>{{baseUrl}}/users</code><br><b>Body (gender ผิด type):</b> <code>{"name":"Test","email":"test@mail.com","gender":123,"status":"active"}</code>',
+     tasks:['เช็ค status 422','เช็คว่า response เป็น array หรือมี error message'],
+     hints:["ส่ง type ผิด เช่น gender เป็นตัวเลข แทน string","Gorest return 422 สำหรับ validation error","pm.expect(body).to.be.an('array')"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(422)','have.status(422)','status(400)'],l:'เช็ค status 422 หรือ 400'},{a:["be.an('array')",'property('],l:'เช็ค error response'}]}
   ],
-  '8': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(401)","have.status(401)"], label:"เช็ค status 401"},
-    {anyOf:["property('message')","property(\"message\")"], label:"เช็คว่ามี field message"}
+  c:[
+    {id:'10',title:'จัดการ Token ใน Environment',desc:'ฝึกดึง token จาก environment มาใช้ใน collectionVariables และเช็คว่า token ยังใช้งานได้',
+     req:'<b>Method:</b> <code>GET</code><br><b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code>',
+     tasks:['เช็ค status 200 — ยืนยันว่า token ยังใช้งานได้','บันทึก token จาก environment ไว้ใน collectionVariables ชื่อ authToken','เช็คว่า authToken ไม่เป็น undefined','console.log authToken ดูว่ามีค่า'],
+     hints:["pm.collectionVariables.set('authToken', pm.environment.get('token'))","pm.expect(pm.collectionVariables.get('authToken')).to.not.be.undefined","console.log('authToken:', pm.collectionVariables.get('authToken'))"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(200)','have.status(200)'],l:'เช็ค status 200'},{a:['collectionVariables.set'],l:'บันทึก authToken'},{a:['authToken'],l:'ใช้ชื่อ authToken'},{a:['console.log'],l:'console.log ดู token'}]},
+    {id:'11',title:'Pre-request Script — Set Token อัตโนมัติ',desc:'เขียน Pre-request Script ให้ set Authorization header อัตโนมัติทุก request',
+     req:'<b>ไปที่ tab Pre-request Script</b> ของ request ใดก็ได้ แล้วเขียน script ให้ set token อัตโนมัติ',
+     tasks:['ดึง token จาก environment ใน Pre-request Script','Set Authorization header อัตโนมัติด้วย Bearer token','ยิง GET /users แล้วเช็คว่าได้ 200'],
+     hints:["const token = pm.environment.get('token')","pm.request.headers.add({ key: 'Authorization', value: 'Bearer ' + token })","ยิง request แล้วดูว่าได้ 200 ไหม"],
+     checks:[{a:['environment.get'],l:'ดึง token จาก environment'},{a:['headers.add','Authorization'],l:'Set Authorization header'},{a:['Bearer'],l:'ใส่ Bearer ด้วย'}]}
   ],
-  '9': [
-    {anyOf:["pm.test"], label:"มี pm.test()"},
-    {anyOf:["status(422)","have.status(422)","status(400)","have.status(400)"], label:"เช็ค status 422 หรือ 400"},
-    {anyOf:["be.an('array')","be.an(\"array\")","property('message')"], label:"เช็ค error response"}
+  d:[
+    {id:'12',title:'E2E Flow: POST → GET → DELETE',desc:'เชื่อม 3 request เข้าด้วยกัน สร้าง user → ดึงมาเช็ค → ลบ โดยใช้ id อัตโนมัติ',
+     req:'<b>Request 1:</b> POST สร้าง user ใหม่<br><b>Request 2:</b> GET user ด้วย id จาก Request 1<br><b>Request 3:</b> DELETE user นั้นออก',
+     tasks:['Request 1: POST สร้าง user เช็ค status 201 และบันทึก id','Request 2: GET user ด้วย {{newUserId}} เช็ค status 200 และ id ตรงกัน','Request 3: DELETE user เช็ค status 204','เช็คว่า id ถูก chain ข้าม request โดยอัตโนมัติ'],
+     hints:["Request 1: pm.collectionVariables.set('newUserId', body.id)","Request 2 URL: {{baseUrl}}/users/{{newUserId}}","Request 3: pm.response.to.have.status(204)"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['collectionVariables.set','collectionVariables.get'],l:'ใช้ collectionVariables chain request'},{a:['status(201)','status(200)','status(204)'],l:'เช็ค status ถูกต้อง'}]},
+    {id:'13',title:'E2E Flow จาก Spec จริง',desc:'อ่าน spec จริง → ออกแบบ test case เอง → เขียน script ครบ flow โดยไม่มีคำใบ้',
+     req:'<b>ใช้ spec ของ API จริงที่คุณทำงานด้วยครับ</b><br>เลือก 1 เส้นที่มี flow: สร้าง → ดึง → แก้ไข → ลบ',
+     tasks:['อ่าน spec และออกแบบ test case ทุก scenario','เขียน script สำหรับ happy path ครบ','เขียน negative test อย่างน้อย 2 case','chain request โดยใช้ collectionVariables'],
+     hints:["เริ่มจาก console.log body ดู structure ก่อนเสมอ","สร้าง collection แยกสำหรับ E2E flow นี้","เขียน README อธิบาย flow ให้คนอื่นอ่านเข้าใจ"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['collectionVariables'],l:'ใช้ collectionVariables'},{a:['status('],l:'เช็ค status code'},{a:['console.log'],l:'มี console.log debug'}]}
+  ],
+  e:[
+    {id:'14',title:'ตั้ง Environment Variables',desc:'สร้าง environment ใน Postman แล้วย้าย baseUrl และ token ออกจากการ hardcode',
+     req:'<b>ไปที่ Environments</b> ใน Postman<br>สร้าง environment ใหม่ชื่อ Gorest<br>เพิ่ม variable: baseUrl และ token',
+     tasks:['สร้าง environment ชื่อ Gorest','เพิ่ม variable baseUrl = https://gorest.co.in/public/v2','เพิ่ม variable token = token ของคุณ','เปลี่ยน URL ทุก request ให้ใช้ {{baseUrl}} แทน URL เต็ม','ยิง request แล้วเช็คว่ายังได้ 200 เหมือนเดิม'],
+     hints:["Environment → + → ตั้งชื่อ Gorest","เพิ่ม variable: baseUrl และ token","ใน URL พิมพ์ {{baseUrl}}/users แทน https://gorest.co.in/public/v2/users"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(200)','have.status(200)'],l:'เช็ค status 200'},{a:['environment.get','collectionVariables'],l:'ใช้ variable จาก environment'}]}
+  ],
+  f:[
+    {id:'15',title:'Data-driven Test ด้วย CSV',desc:'สร้าง CSV file หลาย test case แล้วให้ Newman รัน test ทุก case อัตโนมัติ',
+     req:'<b>สร้างไฟล์ users.csv</b><br><code>name,gender,status</code><br><code>Test User 1,male,active</code><br><code>Test User 2,female,inactive</code>',
+     tasks:['สร้าง CSV file ที่มีข้อมูล user อย่างน้อย 3 แถว','เปลี่ยน POST request ให้ใช้ {{name}} {{gender}} {{status}} จาก CSV','Export Postman collection เป็น JSON','รัน newman run collection.json -d users.csv','ดูผลว่าแต่ละ row ผ่านไหม'],
+     hints:["newman run collection.json -d users.csv","ใน Postman Body ใช้ {{name}} แทนค่า hardcode","newman จะรัน 1 ครั้งต่อ 1 row ใน CSV"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status(201)','status(200)'],l:'เช็ค status'},{a:['name','gender','status'],l:'ใช้ variable จาก CSV'}]}
+  ],
+  g:[
+    {id:'16',title:'Newman CLI — รัน Collection อัตโนมัติ',desc:'Export collection แล้วรันด้วย Newman CLI พร้อม HTML report',
+     req:'<b>ติดตั้ง Newman ก่อนครับ</b><br><code>npm install -g newman</code><br><code>npm install -g newman-reporter-htmlextra</code>',
+     tasks:['Export Postman collection เป็น JSON','Export Environment เป็น JSON','รัน: newman run collection.json -e env.json','รันพร้อม HTML report: newman run collection.json -e env.json -r htmlextra','เปิดดู report ที่ได้'],
+     hints:["newman run MyCollection.json -e MyEnv.json","newman run MyCollection.json -e MyEnv.json -r htmlextra --reporter-htmlextra-export report.html","ดู report.html ที่ browser เพื่อเห็น pass/fail ทุก test"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status('],l:'เช็ค status'},{a:['collectionVariables','environment'],l:'ใช้ variable ถูกต้อง'}]},
+    {id:'17',title:'Push GitHub + เขียน README',desc:'Push collection ขึ้น GitHub พร้อมเขียน README อธิบาย test ที่ทำ — นี่คือ portfolio จริงของคุณ',
+     req:'<b>Repository:</b> my-personal-api-testing<br>Push ไฟล์เหล่านี้ขึ้น GitHub:<br>• Postman collection JSON<br>• Environment JSON (ลบ token ออกก่อน!)<br>• README.md<br>• Screenshot ของ Newman report',
+     tasks:['Export collection และ environment จาก Postman','ลบ token จริงออกจาก environment JSON ก่อน push','เขียน README.md อธิบาย: ทำอะไร, ใช้ API อะไร, รัน test ยังไง','Push ไฟล์ทั้งหมดขึ้น GitHub','ตรวจสอบว่า README แสดงถูกต้องใน GitHub'],
+     hints:["README ควรมี: หัวข้อ, วิธีตั้งค่า, วิธีรัน, screenshot","ห้าม push token จริงขึ้น GitHub เด็ดขาด","ใส่ screenshot Newman report ใน README ด้วย"],
+     checks:[{a:['pm.test'],l:'มี pm.test()'},{a:['status('],l:'เช็ค status'},{a:['console.log'],l:'มี console.log debug'}]}
   ]
 }
 
-const hintsB = {
-  '6': ["pm.response.to.have.status(404)", "pm.expect(body).to.have.property('message')", "pm.expect(body.message).to.be.a('string')"],
-  '7': ["Gorest ส่ง error เป็น array → pm.expect(body).to.be.an('array')", "pm.expect(body[0]).to.have.property('field')", "pm.expect(body[0]).to.have.property('message')"],
-  '8': ["ลบ Authorization header ออกจาก request", "pm.response.to.have.status(401)", "pm.expect(body).to.have.property('message')"],
-  '9': ["ส่ง type ผิด เช่น gender เป็นตัวเลข แทน string", "Gorest return 422 สำหรับ validation error", "pm.expect(body).to.be.an('array')"]
-}
+// Phase unlock order
+const PHASE_ORDER = ['a','b','c','d','e','f','g']
+const PHASE_EX_COUNT = {a:5,b:4,c:2,d:2,e:1,f:1,g:2}
 
-function checkExB(n) {
-  const ta = document.getElementById('ans-b-' + n)
-  const fb = document.getElementById('fb-b-' + n)
-  const ans = ta.value.trim()
-  if (ans.length < 20) {
-    fb.className = 'feedback fail show'
-    fb.innerHTML = '<div class="fb-title">⚠️ ยังไม่ได้เขียนครับ</div>'
-    return
-  }
-  const items = checkMapB[n] || []
-  const itemPassed = i => i.anyOf ? i.anyOf.some(k => ans.includes(k)) : ans.includes(i.key)
-  const passed = items.filter(i => itemPassed(i))
-  const failed = items.filter(i => !itemPassed(i))
-  const score = Math.round(passed.length / items.length * 100)
-  const isPass = score >= 70
-  let html = '<div class="fb-title">' + (isPass ? '🎉 ผ่านแล้วครับ!' : '📝 ใกล้แล้ว ปรับเพิ่มอีกนิด') + ' (' + score + '%)</div>'
-  html += '<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:' + score + '%"></div></div><div class="score-text">' + passed.length + '/' + items.length + '</div></div>'
-  if (passed.length) {
-    html += '<div class="fb-item" style="color:var(--green-darker);font-weight:600;margin:4px 0">✅ ถูกแล้ว</div>'
-    passed.forEach(p => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--green)"></div>' + p.label + '</div>')
-  }
-  if (failed.length) {
-    html += '<div class="fb-item" style="color:#C62828;font-weight:600;margin:8px 0 4px">❌ ยังขาด</div>'
-    failed.forEach(f => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--red)"></div>' + f.label + '</div>')
-  }
-  fb.className = 'feedback ' + (isPass ? 'pass' : 'fail') + ' show'
-  fb.innerHTML = html
+// ===== STORAGE =====
+function save(d){try{localStorage.setItem(LS_KEY,JSON.stringify(d))}catch(e){}}
+function load(){try{const r=localStorage.getItem(LS_KEY);return r?JSON.parse(r):{}}catch(e){return{}}}
+function clearAll(){if(!confirm('ล้างข้อมูลทั้งหมดใช่ไหมครับ?'))return;localStorage.removeItem(LS_KEY);location.reload()}
 
-  if (isPass) {
-    if (!progress[n]) progress[n] = {}
-    progress[n].passed = true
-    progress[n].score = score
-    progress[n].lastScript = ans
-    save(progress)
-    const numEl = document.getElementById('num-b-' + n)
-    if (numEl) { numEl.classList.add('done'); numEl.textContent = '✓' }
-    const done = Object.keys(progress).filter(k => progress[k]?.passed).length
-    updateBar(done)
-    // unlock next
-    const nextId = 'badge-b-' + (parseInt(n)+1)
-    const nb = document.getElementById(nextId)
-    if (nb && nb.classList.contains("badge-lock")) { nb.className = "ex-badge badge-new"; nb.textContent = "เริ่มได้เลย" }
-    // check if all phase B done
-    const phaseBAllDone = ["6","7","8","9"].every(k => progress[k]?.passed)
-    if (phaseBAllDone) setTimeout(() => unlockPhaseC(), 200)
-  }
-}
+// ===== CHECK =====
+function ip(item,ans){return item.a?item.a.some(k=>ans.includes(k)):ans.includes(item.k||'')}
 
-function showHintB(n) {
-  const fb = document.getElementById('fb-b-' + n)
-  const h = hintsB[n] || []
-  let html = '<div class="fb-title">💡 คำใบ้</div>'
-  h.forEach(t => html += '<div class="fb-item"><div class="fb-dot" style="background:var(--accent)"></div>' + t + '</div>')
-  fb.className = 'feedback hint-fb show'; fb.innerHTML = html
-}
-
-function makeExB(num, title, desc, requestHtml, tasks, placeholder) {
-  const isFirst = num === '6'
-  return `
-  <div class="ex-card" id="card-b-${num}">
-    <div class="ex-header" onclick="toggleExB('${num}')">
-      <div class="ex-num" id="num-b-${num}">${num}</div>
-      <div class="ex-title">${title}</div>
-      <div class="ex-meta"><span class="ex-badge ${isFirst ? 'badge-new' : 'badge-lock'}" id="badge-b-${num}">${isFirst ? 'เริ่มได้เลย' : '🔒 ทำ Ex ก่อนหน้าก่อน'}</span></div>
-      <span class="chevron" id="chev-b-${num}">▼</span>
+// ===== RENDER =====
+function renderEx(ex,isFirst){
+  const sv=progress[ex.id]
+  const done=sv?.passed
+  const script=sv?.lastScript||''
+  const score=sv?.score?sv.score+'%':''
+  const tasks=ex.tasks.map((t,i)=>`<div class="task-item"><div class="task-num">${i+1}</div>${t}</div>`).join('')
+  return `<div class="${done?'ex-card completed':'ex-card'}" id="card-${ex.id}">
+    <div class="ex-header" onclick="toggleEx('${ex.id}')">
+      <div class="${done?'ex-num done':'ex-num'}" id="num-${ex.id}">${done?'✓':ex.id}</div>
+      <div class="ex-title">${ex.title}</div>
+      <div class="ex-meta">
+        <span class="${done?'ex-badge badge-done':isFirst?'ex-badge badge-new':'ex-badge badge-lock'}" id="badge-${ex.id}">${done?'✅ ผ่านแล้ว':isFirst?'เริ่มได้เลย':'🔒 ทำ Ex ก่อนหน้าก่อน'}</span>
+        <span class="ex-score" id="score-${ex.id}">${score}</span>
+      </div>
+      <span class="chevron" id="chev-${ex.id}">▼</span>
     </div>
-    <div class="ex-body" id="body-b-${num}">
-      <div class="ex-desc">${desc}</div>
+    <div class="ex-body" id="body-${ex.id}">
+      <div class="ex-desc">${ex.desc}</div>
       <div class="ex-section">ตั้งค่า Request</div>
-      <div class="info-box">${requestHtml}</div>
+      <div class="info-box">${ex.req}</div>
       <div class="ex-section">โจทย์</div>
       <div class="task-list">${tasks}</div>
-      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
-      <textarea id="ans-b-${num}" placeholder="${placeholder}"></textarea>
-      <div class="btn-row">
-        <button class="btn-check" onclick="checkExB('${num}')">✅ ตรวจคำตอบ</button>
-        <button class="btn-hint" onclick="showHintB('${num}')">💡 คำใบ้</button>
-        <button class="btn-reset" onclick="document.getElementById('ans-b-${num}').value='';document.getElementById('fb-b-${num}').className='feedback'">↺ ล้าง</button>
+      <div id="sw-${ex.id}" style="display:${script?'block':'none'}">
+        <div class="saved-label">📝 Script ที่ส่งล่าสุด <span class="toggle-saved" onclick="toggleSaved('${ex.id}')">ซ่อน/แสดง</span></div>
+        <div class="saved-answer show" id="sa-${ex.id}">${script}</div>
       </div>
-      <div class="feedback" id="fb-b-${num}"></div>
+      <label style="font-size:12px;font-weight:600;color:var(--green-darker);margin-top:14px;display:block">✍️ เขียน Test Script</label>
+      <textarea id="ans-${ex.id}" placeholder="const body = pm.response.json()&#10;&#10;pm.test(...)">${script}</textarea>
+      <div class="btn-row">
+        <button class="btn-check" onclick="checkEx('${ex.id}')">✅ ตรวจคำตอบ</button>
+        <button class="btn-hint" onclick="showHint('${ex.id}')">💡 คำใบ้</button>
+        <button class="btn-reset" onclick="resetEx('${ex.id}')">↺ ล้าง</button>
+      </div>
+      <div class="feedback" id="fb-${ex.id}"></div>
     </div>
   </div>`
 }
 
-function toggleExB(n) {
-  const body = document.getElementById('body-b-' + n)
-  const chev = document.getElementById('chev-b-' + n)
-  const isOpen = body.classList.contains('open')
-  document.querySelectorAll('.ex-body').forEach(b => b.classList.remove('open'))
-  document.querySelectorAll('.chevron').forEach(c => c.style.transform = '')
-  if (!isOpen) { body.classList.add('open'); chev.style.transform = 'rotate(180deg)' }
+// ===== ACTIONS =====
+function toggleEx(id){
+  const b=document.getElementById('body-'+id),c=document.getElementById('chev-'+id)
+  const o=b.classList.contains('open')
+  document.querySelectorAll('.ex-body').forEach(x=>x.classList.remove('open'))
+  document.querySelectorAll('.chevron').forEach(x=>x.style.transform='')
+  if(!o){b.classList.add('open');c.style.transform='rotate(180deg)'}
+}
+function toggleSaved(id){document.getElementById('sa-'+id).classList.toggle('show')}
+function resetEx(id){document.getElementById('ans-'+id).value='';const f=document.getElementById('fb-'+id);f.className='feedback';f.innerHTML=''}
+function showPhase(p,btn){
+  document.querySelectorAll('.phase-panel').forEach(el=>el.classList.remove('active'))
+  document.querySelectorAll('.phase-btn').forEach(el=>el.classList.remove('active'))
+  document.getElementById('phase-'+p).classList.add('active');btn.classList.add('active')
 }
 
-function unlockPhaseB() {
-  const pb = document.getElementById('phase-b')
-  if (pb.querySelector('.ex-card')) return
+function showHint(id){
+  const f=document.getElementById('fb-'+id)
+  let ex=null
+  for(const list of Object.values(DATA)){ex=list.find(e=>e.id===id);if(ex)break}
+  if(!ex)return
+  let html='<div class="fb-title">💡 คำใบ้</div>'
+  ex.hints.forEach(h=>html+='<div class="fb-item"><div class="fb-dot" style="background:var(--accent)"></div>'+h+'</div>')
+  f.className='feedback hint-fb show';f.innerHTML=html
+}
 
-  const t6 = (n) => `<div class="task-item"><div class="task-num">${n}</div>`
-  const tc = `</div>`
+function checkEx(id){
+  const ans=document.getElementById('ans-'+id).value.trim()
+  const f=document.getElementById('fb-'+id)
+  if(ans.length<10){f.className='feedback fail show';f.innerHTML='<div class="fb-title">⚠️ ยังไม่ได้เขียนครับ</div>';return}
+  let ex=null
+  for(const list of Object.values(DATA)){ex=list.find(e=>e.id===id);if(ex)break}
+  if(!ex)return
+  const items=ex.checks||[]
+  const passed=items.filter(i=>ip(i,ans))
+  const failed=items.filter(i=>!ip(i,ans))
+  const score=Math.round(passed.length/items.length*100)
+  const isPass=score>=70
+  let html='<div class="fb-title">'+(isPass?'🎉 ผ่านแล้วครับ!':'📝 ใกล้แล้ว ปรับเพิ่มอีกนิด')+' ('+score+'%)</div>'
+  html+='<div class="score-bar"><div class="score-track"><div class="score-fill" style="width:'+score+'%"></div></div><div class="score-text">'+passed.length+'/'+items.length+'</div></div>'
+  if(passed.length){html+='<div class="fb-item" style="color:var(--green-darker);font-weight:600;margin:4px 0">✅ ถูกแล้ว</div>';passed.forEach(p=>html+='<div class="fb-item"><div class="fb-dot" style="background:var(--green)"></div>'+p.l+'</div>')}
+  if(failed.length){html+='<div class="fb-item" style="color:#C62828;font-weight:600;margin:8px 0 4px">❌ ยังขาด</div>';failed.forEach(ff=>html+='<div class="fb-item"><div class="fb-dot" style="background:var(--red)"></div>'+ff.l+'</div>')}
+  f.className='feedback '+(isPass?'pass':'fail')+' show';f.innerHTML=html
+  if(!progress[id])progress[id]={}
+  progress[id].lastScript=ans;progress[id].score=score
+  if(isPass&&!progress[id].passed){progress[id].passed=true;markPassed(id);checkUnlocks()}
+  save(progress)
+  document.getElementById('sa-'+id).textContent=ans
+  document.getElementById('sw-'+id).style.display='block'
+  document.getElementById('sa-'+id).classList.add('show')
+  updateBar()
+  if(isPass)document.getElementById('score-'+id).textContent=score+'%'
+}
 
-  pb.innerHTML = `
-  <div class="api-info-bar">🎯 <b>Phase B — Negative Test</b><br>Bug ส่วนใหญ่ซ่อนอยู่ในกรณีผิดปกติ ไม่ใช่ happy path</div>` +
+function markPassed(id){
+  const n=document.getElementById('num-'+id);if(n){n.classList.add('done');n.textContent='✓'}
+  const c=document.getElementById('card-'+id);if(c)c.classList.add('completed')
+  const b=document.getElementById('badge-'+id);if(b){b.className='ex-badge badge-done';b.textContent='✅ ผ่านแล้ว'}
+}
 
-  makeExB('6',
-    'GET User ที่ไม่มีอยู่ → 404',
-    'ทดสอบว่า API ตอบ 404 ถูกต้องเมื่อ user ไม่มีอยู่ในระบบ',
-    '<b>Method:</b> <code>GET</code><br><b>URL:</b> <code>{{baseUrl}}/users/0000001</code><br><b>Header:</b> <code>Authorization: Bearer {{token}}</code>',
-    `${t6(1)}เช็ค status 404${tc}${t6(2)}เช็คว่า response มี field <code>message</code>${tc}${t6(3)}เช็คว่า <code>message</code> เป็น string${tc}`,
-    'const body = pm.response.json()\n\npm.test(...)'
-  ) +
-
-  makeExB('7',
-    'POST User ไม่ครบ field → 422',
-    'ส่ง body ไม่ครบ required field เช็คว่า API ตอบ 422 พร้อม error detail',
-    '<b>Method:</b> <code>POST</code><br><b>URL:</b> <code>{{baseUrl}}/users</code><br><b>Body (ขาด email):</b> <code>{ "name": "Test", "gender": "male", "status": "active" }</code>',
-    `${t6(1)}เช็ค status 422${tc}${t6(2)}เช็คว่า response เป็น array${tc}${t6(3)}เช็คว่า error อันแรกมี field <code>field</code> และ <code>message</code>${tc}`,
-    'const body = pm.response.json()\n\npm.test(...)'
-  ) +
-
-  makeExB('8',
-    'DELETE โดยไม่มี token → 401',
-    'ลบ Authorization header ออก แล้วเช็คว่า API ปฏิเสธ request',
-    '<b>Method:</b> <code>DELETE</code><br><b>URL:</b> <code>{{baseUrl}}/users/{{userId}}</code><br><b>ไม่ต้องใส่ Authorization header</b>',
-    `${t6(1)}เช็ค status 401${tc}${t6(2)}เช็คว่า response มี field <code>message</code>${tc}`,
-    'const body = pm.response.json()\n\npm.test(...)'
-  ) +
-
-  makeExB('9',
-    'POST ส่ง type ผิด → 422',
-    'ส่ง gender เป็นตัวเลขแทน string เช็คว่า API จัดการ validation error ได้',
-    '<b>Method:</b> <code>POST</code><br><b>URL:</b> <code>{{baseUrl}}/users</code><br><b>Body (gender ผิด type):</b> <code>{ "name": "Test", "email": "test@mail.com", "gender": 123, "status": "active" }</code>',
-    `${t6(1)}เช็ค status 422${tc}${t6(2)}เช็คว่า response เป็น array หรือมี error message${tc}`,
-    'const body = pm.response.json()\n\npm.test(...)'
-  )
-
-  // restore saved progress for phase B
-  for (let n = 6; n <= 9; n++) {
-    const key = String(n)
-    const d = progress[key]
-    if (d?.passed) {
-      const numEl = document.getElementById('num-b-' + key)
-      if (numEl) { numEl.classList.add('done'); numEl.textContent = '✓' }
-    }
-    if (d?.lastScript) {
-      const ta = document.getElementById('ans-b-' + key)
-      if (ta) ta.value = d.lastScript
-    }
-    // unlock badges
-    if (n > 6 && progress[String(n-1)]?.passed) {
-      const b = document.getElementById('badge-b-' + key)
-      if (b) { b.className = 'ex-badge badge-new'; b.textContent = 'เริ่มได้เลย' }
-    }
+function checkUnlocks(){
+  // unlock next exercise in same phase
+  for(const[ph,list]of Object.entries(DATA)){
+    list.forEach((ex,i)=>{
+      if(progress[ex.id]?.passed&&i+1<list.length){
+        const nb=document.getElementById('badge-'+list[i+1].id)
+        if(nb&&nb.classList.contains('badge-lock')){nb.className='ex-badge badge-new';nb.textContent='เริ่มได้เลย'}
+      }
+    })
   }
+  // unlock next phase
+  const phaseIds=['a','b','c','d','e','f']
+  phaseIds.forEach(ph=>{
+    const list=DATA[ph]
+    if(!list)return
+    const allDone=list.every(e=>progress[e.id]?.passed)
+    if(allDone){
+      const nextIdx=PHASE_ORDER.indexOf(ph)+1
+      const nextPh=PHASE_ORDER[nextIdx]
+      if(nextPh){
+        const lock=document.getElementById('lock-'+nextPh)
+        const listEl=document.getElementById('list-'+nextPh)
+        if(lock)lock.style.display='none'
+        if(listEl)listEl.style.display='block'
+      }
+    }
+  })
 }
 
+function updateBar(){
+  const total=17
+  const done=Object.keys(progress).filter(k=>progress[k]?.passed).length
+  document.getElementById('prog-text').textContent=done+' / '+total+' exercises'
+  document.getElementById('prog-fill').style.width=(done/total*100)+'%'
+}
+
+// ===== INIT =====
+function init(){
+  progress=load()
+  // render all phases
+  const phases=['a','b','c','d','e','f','g']
+  phases.forEach(ph=>{
+    const list=DATA[ph]
+    if(!list)return
+    const el=document.getElementById('list-'+ph)
+    if(!el)return
+    el.innerHTML+=(el.innerHTML.includes('phase-header')?'':'')+list.map((e,i)=>renderEx(e,i===0)).join('')
+  })
+  checkUnlocks()
+  updateBar()
+}
 
 init()
 </script>
